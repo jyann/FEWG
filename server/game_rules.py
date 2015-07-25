@@ -1,6 +1,4 @@
-perm_stat_defaults = {'health':10,'attack':1,'defense':1,'accuracy':1,'agility':1}
-var_stat_defaults = {'health':10,'defense':0,'accuracy':0,'agility':0}
-
+from players import *
 
 valid_commands = ['attack','defend','focus','dodge']
 
