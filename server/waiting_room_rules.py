@@ -1,7 +1,7 @@
 from players import Player
 
 valid_commands = ['add_player', 'ready', 'unready']
-invalid_keys = ['op']
+invalid_keys = ['op', 'draw']
 
 def valid_key(playerkey):
 	if (playerkey in invalid_keys) or (' ' in playerkey) or (':' in playerkey):
