@@ -4,7 +4,7 @@ import waiting_room_rules
 class Game(object):
 	states = ['waiting', 'running', 'finished']
 
-	def __init__(self, player_limit=2):
+	def __init__(self, player_llim=2, player_ulim=2):
 		self.winner = None
 		self.state = 'waiting'
 
@@ -18,7 +18,9 @@ class Game(object):
 		for cmd_key in game_rules.valid_commands:
 			self.command_functs['running'][cmd_key] = getattr(game_rules, cmd_key)
 
-		self.player_limit = player_limit
+		self.player_llim = player_llim
+		self.player_ulim = player_ulim
+
 		self.players = {}
 		self.graveyard = []
 
@@ -30,7 +32,7 @@ class Game(object):
 			if command == 'quit':
 				self.quit(playerkey)
 			else:
-				self = self.command_functs[self.state][cmd[0]](self, playerkey, targetkey)
+				self = self.command_functs[self.state][command](self, playerkey, targetkey)
 		except Exception as e:
 			return 'invalid command'
 

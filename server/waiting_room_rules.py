@@ -16,10 +16,15 @@ def all_ready(game):
 
 	return True
 
+def start_condition(game):
+	c1 = len(game.players) >= game.player_llim
+	c2 = all_ready(game)
+	return c1 and c2
+
 # Command functions:
 
 def add_player(game, playerkey, targetkey):
-	if len(game.players) == game.player_limit:
+	if len(game.players) == game.player_ulim:
 		return game
 	if playerkey in game.players.keys():
 		return game
@@ -31,7 +36,7 @@ def add_player(game, playerkey, targetkey):
 
 def ready(game, playerkey, targetkey):
 	game.players[playerkey].status = 'ready'
-	if all_ready(game):
+	if start_condition(game):
 		game.state = 'running'
 
 	return game

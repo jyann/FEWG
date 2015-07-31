@@ -7,7 +7,10 @@ class Player(object):
 		self.vars = var_defaults
 		self.status = 'waiting'
 
-	def reset_vars(self, varkeys=self.vars.keys()):
+	def reset_vars(self, varkeys=None):
+		if varkeys == None:
+			varkeys = self.vars.keys()
+
 		for varkey in varkeys:
 			if var_defaults[varkey] == 0:
 				self.vars[varkey] = 0
