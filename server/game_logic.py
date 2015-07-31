@@ -2,9 +2,7 @@ import game_rules
 import waiting_room_rules
 
 class Game(object):
-	states = ['waiting', 'running']
-
-	valid_universal_commands = ['quit']
+	states = ['waiting', 'running', 'finished']
 
 	def __init__(self, player_limit=2):
 		self.winner = None
@@ -22,27 +20,25 @@ class Game(object):
 
 		self.player_limit = player_limit
 		self.players = {}
-		self.ready_flags = {}
+		self.graveyard = []
 
-	def processCommand(self, name, command):
+	def processCommand(self, playerkey, command, targetkey=None):
+		if targetkey == None:
+			targetkey = playerkey
+
 		try:
 			if command == 'quit':
-				self.quit(name)
+				self.quit(playerkey)
 			else:
-				cmd = command.split(' ')
-				if len(cmd) == 1:
-					self = self.command_functs[self.state][cmd[0]](self, name)
-				else:
-					a, d = self.players[name], self.players[cmd[1]]
-					self.players[name], self.players[cmd[1]] = self.command_functs[self.state][cmd[0]](a, d)
+				self = self.command_functs[self.state][cmd[0]](self, playerkey, targetkey)
 		except Exception as e:
-			print str(e)
+			return 'invalid command'
 
-	def quit(self, name):
-		del self.players[name]
+	def quit(self, playerkey):
+		del self.players[playerkey]
 		self.reset()
 		self.state = 'waiting'
 
 	def reset(self):
 		for player in self.players.values():
-			player.reset_stats()
+			player.reset_vars()

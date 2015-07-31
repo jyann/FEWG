@@ -2,39 +2,56 @@ from players import *
 
 valid_commands = ['attack','defend','focus','dodge']
 
-def subtract(value, statflow, attacker, defender):
+def subtract(value, varflow, player, target):
 	curval = value
-	for stat in statflow:
-		if defender.var_stats[stat]-curval < 0:
-			curval -= defender.var_stats[stat]
-			defender.var_stats[stat] = 0
+	for varkey in varflow:
+		if target.vars[varkey]-curval < 0:
+			curval -= target.vars[varkey]
+			target.vars[varkey] = 0
 		else:
-			defender.var_stats[stat] -= curval
+			target.vars[varkey] -= curval
 			break
 
-	return attacker, defender
+	return player, target
 
-def reset_stats(statkeys, player):
-	for stat in statkeys:
-		player.var_stats[stat] = 0
+def extract_players(game, playerkey, targetkey):
+	return game.players[playerkey], game.players[targetkey]
 
-def attack(attacker, defender):
-	if attacker.var_stats['accuracy'] >= defender.var_stats['agility']:
-		attacker, defender = subtract(attacker.perm_stats['attack'],['defense','health'],attacker,defender)
+def replace_players(game, playerkey, player, targetkey, target):
+	game.players[playerkey] = player
+	game.players[targetkey] = target
+	return game
 
-	attacker = reset_stats(['accuracy'], attacker)
-	defender = reset_stats(['agility'], defender)
+# Command functions:
 
-	return attacker, defender
+def attack(game, playerkey, targetkey):
+	player,target = extract_players(game, playerkey, targetkey)
 
-def defend(attacker, defender):
-	attacker.var_stats['defense'] += attacker.perm_stats['defense']
-	return attacker, defender
+	if player.vars['accuracy'] >= target.vars['agility']:
+		player, target = subtract(player.stats['attack'],['defense','health'],player,target)
 
-def focus(attacker, defender):
-	attacker.var_stats['accuracy'] += attacker.perm_stats['accuracy']
-	return attacker, defender
+	player.reset_vars(['accuracy'])
+	target.reset_vars(['agility'])
 
-def dodge(attacker, defender):
-	attacker.var_stats['agility'] += attacker.perm_stats['agility']
-	return attacker, defender
+	return replace_players(game,playerkey,player,targetkey,target)
+
+def defend(game, playerkey, targetkey):
+	player,target = extract_players(game, playerkey, targetkey)
+
+	player.vars['defense'] += target.stats['defense']
+
+	return replace_players(game,playerkey,player,targetkey,target)
+
+def focus(game, playerkey, targetkey):
+	player,target = extract_players(game, playerkey, targetkey)
+
+	player.vars['accuracy'] += player.stats['accuracy']
+
+	return replace_players(game,playerkey,player,targetkey,target)
+
+def dodge(game, playerkey, targetkey):
+	player,target = extract_players(game, playerkey, targetkey)
+
+	player.vars['agility'] += player.stats['agility']
+
+	return replace_players(game,playerkey,player,targetkey,target)

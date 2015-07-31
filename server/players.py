@@ -1,14 +1,15 @@
-perm_stat_defaults = {'health':10,'attack':1,'defense':1,'accuracy':1,'agility':1}
-var_stat_defaults = {'health':10,'defense':0,'accuracy':0,'agility':0}
+stat_defaults = {'health':10,'attack':1,'defense':1,'accuracy':1,'agility':1}
+var_defaults = {'health':10,'defense':0,'accuracy':0,'agility':0}
 
 class Player(object):
 	def __init__(self):
-		self.perm_stats = perm_stat_defaults
-		self.var_stats = var_stat_defaults
+		self.stats = stat_defaults
+		self.vars = var_defaults
+		self.status = 'waiting'
 
-	def reset_stats(self):
-		for vskey in self.var_stats.keys():
-			if var_stat_defaults[vskey] == 0:
-				self.var_stats[vskey] = 0
+	def reset_vars(self, varkeys=self.vars.keys()):
+		for varkey in varkeys:
+			if var_defaults[varkey] == 0:
+				self.vars[varkey] = 0
 			else:
-				self.var_stats[vskey] = self.perm_stats[vskey]
+				self.vars[varkey] = self.stats[varkey]
