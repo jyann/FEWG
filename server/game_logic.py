@@ -44,3 +44,5 @@ class Game(object):
 	def reset(self):
 		for player in self.players.values():
 			player.reset_vars()
+		self.graveyard = []
+		self.state = 'waiting'
