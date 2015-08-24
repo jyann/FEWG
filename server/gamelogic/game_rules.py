@@ -1,6 +1,6 @@
 from players import *
 
-valid_commands = ['attack','defend','focus','dodge']
+valid_commands = ['attack','defend']
 
 def subtract(value, varflow, player, target):
 	curval = value

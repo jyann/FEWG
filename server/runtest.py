@@ -14,12 +14,10 @@ if __name__ == '__main__':
 
 	suite = unittest.TestSuite()
 
-	if len(argv) > 1:
-		if argv[1] == 'gamelogic':
-			suite = addTestsToSuite(suite, gamelogic.tests.GameTest)
-		else:
-			print 'Invalid argument'
+	if len(argv) == 1 or 'all' in argv:
+		suite = addTestsToSuite(suite, gamelogic.tests.WaitingRules)
 	else:
-		suite = addTestsToSuite(suite, gamelogic.tests.GameTest)
+		if 'gamelogic' in argv:
+			suite = addTestsToSuite(suite, gamelogic.tests.WaitingRules)
 
 	unittest.TextTestRunner().run(suite)

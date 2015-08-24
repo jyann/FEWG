@@ -1,6 +1,6 @@
 from players import Player
 
-valid_commands = ['add_player', 'ready', 'unready']
+valid_commands = ['add', 'ready', 'unready']
 invalid_keys = ['op', 'draw']
 
 def valid_key(playerkey):
@@ -23,7 +23,7 @@ def start_condition(game):
 
 # Command functions:
 
-def add_player(game, playerkey, targetkey):
+def add(game, playerkey, targetkey):
 	if len(game.players) == game.player_ulim:
 		return game
 	if playerkey in game.players.keys():
