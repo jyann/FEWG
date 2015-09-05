@@ -3,10 +3,10 @@ import unittest
 from gamelogic.game import Game
 
 class WaitingRules(unittest.TestCase):
-	testnames = ['dualGameWaiting']
+	testnames = ['addPlayerTo2PlayerGame']
 
-	def dualGameWaiting(self):
-		g = Game()
+	def addPlayerTo2PlayerGame(self):
+		g = Game(player_llim=2, player_ulim=2)
 
 		g.processCommand('player1','add')
 		self.assertEqual(g.state, 'waiting')

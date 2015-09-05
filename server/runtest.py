@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	if len(argv) == 1 or 'all' in argv:
 		suite = addTestsToSuite(suite, gamelogic.tests.WaitingRules)
 	else:
-		if 'gamelogic' in argv:
+		if 'game' in argv:
 			suite = addTestsToSuite(suite, gamelogic.tests.WaitingRules)
 
 	unittest.TextTestRunner().run(suite)
