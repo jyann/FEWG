@@ -46,3 +46,6 @@ class Game(object):
 			player.reset_vars()
 		self.graveyard = []
 		self.state = 'waiting'
+
+def newGame():
+	return Game
