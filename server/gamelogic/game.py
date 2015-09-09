@@ -48,4 +48,4 @@ class Game(object):
 		self.state = 'waiting'
 
 def newGame():
-	return Game
+	return Game()
