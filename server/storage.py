@@ -22,3 +22,16 @@ def readProperties(filepath):
 		data['redis_address'] = data['server_address']
 
 	return data
+
+def getPlayer(name):
+	player = {'stats':{},'vars':{}}
+
+	player['stats']['health'] = 10
+	player['vars']['health'] = 10
+
+	player['stats']['attack'] = 1
+	
+	player['stats']['defense'] = 1
+	player['vars']['defense'] = 0
+
+	return player
