@@ -10,7 +10,7 @@ class FEWGProtocol(protocol.Protocol):
 			self.transport.write('server full\n')
 			self.transport.loseConnection()
 		else:
-			self.unnamed_clients.append(self)
+			self.factory.clients.append(self)
 			self.name = None
 			self.gamekey = None
 
@@ -27,11 +27,13 @@ class FEWGProtocol(protocol.Protocol):
 				self, msg = rules.joinGame(data[2], storage.getPlayer(self.name), self)
 			else:
 				self.transport.write('unknown command\n')
-		except Exception:
+		except Exception as e:
+			print e
 			self.transport.write('malformed command\n')
 
 class FEWGServerFactory(protocol.ServerFactory):
-	def __init__(self, client_limit, game_limit):
+	def __init__(self, proto, client_limit, game_limit):
+		self.protocol = proto
 		self.client_limit = client_limit
 		self.game_limit = game_limit
 		self.clients = []
@@ -39,16 +41,16 @@ class FEWGServerFactory(protocol.ServerFactory):
 		self.games = {}
 
 	def isFull(self):
-		return len(self.clients) >= client_limit
+		return len(self.clients) >= self.client_limit
+
+from twisted.internet import reactor
 
 class FEWGServer(object):
 	def __init__(self, prop_path='server.properties', client_limit=10, game_limit=5):
-		from twisted.internet import reactor
-
 		self.prop_path = prop_path
 		self.properties = storage.readProperties(self.prop_path)
 		reactor.addSystemEventTrigger('before', 'shutdown', self.onStop)
-		reactor.listenTCP(int(self.properties['server_port']), FEWGServerFactory(client_limit, game_limit))
+		reactor.listenTCP(int(self.properties['server_port']), FEWGServerFactory(FEWGProtocol, client_limit, game_limit))
 		#redis_conn = StrictRedis(host=self.properties['redis_address'], port=self.properties['redis_port'])
 
 	def start(self):

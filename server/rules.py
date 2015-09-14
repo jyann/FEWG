@@ -1,18 +1,18 @@
-def log(msg):
+def logMsg(msg):
 	print msg
 
 def login(username, password, client):
-	if username in self.factory.names:
-		log('login failed')
-		log('names: '+str(client.factory.names))
+	if username in client.factory.names or client.name in client.factory.names:
+		logMsg('login failed')
+		logMsg('names: '+str(client.factory.names))
 
 		return client, 'failed\n'
 	else:
 		client.name = username
 		client.factory.names.append(username)
 
-		log(name+' logged in')
-		log('names: '+str(client.factory.names))
+		logMsg(client.name+' logged in')
+		logMsg('names: '+str(client.factory.names))
 
 		return client, 'success\n'
 
@@ -25,13 +25,13 @@ def createGame(gamename, client):
 	if gamename not in client.factory.games.keys():
 		client.factory.games[gamename] = newGame()
 
-		log('game '+gamename+' created')
-		log('games: '+str(client.factory.games))
+		logMsg('game '+gamename+' created')
+		logMsg('games: '+str(client.factory.games))
 
 		return client, 'sucess\n'
 	else:
-		log('game '+gamename+' not created')
-		log('games: '+str(client.factory.games))
+		logMsg('game '+gamename+' not created')
+		logMsg('games: '+str(client.factory.games))
 
 		return client, 'failed\n'
 
@@ -42,13 +42,13 @@ def joinGame(gamename, playerdata, client):
 		client.gamekey = gamename
 		client.factory.games[gamename]['players'][client.name] = playerdata
 
-		log(client.name+' added to game '+client.gamekey)
-		log('games: '+str(client.factory.games))
+		logMsg(client.name+' added to game '+client.gamekey)
+		logMsg('games: '+str(client.factory.games))
 
 		return client, 'success\n'
 	else:
-		log(client.name+' not added to game '+gamename)
-		log('client.gamekey='+str(client.gamekey))
-		log('games: '+str(client.factory.games))
+		logMsg(client.name+' not added to game '+gamename)
+		logMsg('client.gamekey='+str(client.gamekey))
+		logMsg('games: '+str(client.factory.games))
 
 		return client, 'failed\n'

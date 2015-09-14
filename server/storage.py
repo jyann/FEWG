@@ -1,3 +1,5 @@
+from os import path
+
 defaultProps = {'server_address':'localhost', 'server_port':'1234', 'redis_port':'6379'}
 
 def writeProperties(filepath, data):
@@ -5,14 +7,16 @@ def writeProperties(filepath, data):
 	for k in data.keys():
 		filestr += k + '=' + data[k] + '\n'
 
-	with f as open(filepath, 'w'):
-		f.write(filestr)
+	f = open(filepath, 'w')
+	f.write(filestr)
 
 def readProperties(filepath):
 	data = {}
-	for line in open(filepath, 'r'):
-		key, val = data.split('=')
-		data[key] = val
+	if path.exists(filepath):
+		for line in open(filepath, 'r'):
+			if line.strip() != '':
+				key, val = line.split('=')
+				data[key] = val
 
 	for key in defaultProps.keys():
 		if key not in data.keys() or data[key].strip() == '':
