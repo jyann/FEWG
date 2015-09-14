@@ -20,16 +20,40 @@ class FEWGProtocol(protocol.Protocol):
 			if data[0] == 'login':
 				self, msg = rules.login(data[1], data[2], self)
 				self.transport.write(msg)
+			elif data[0] == 'logout':
+				self, msg = rules.logout(self)
+				self.transport.write(msg)
+			elif data[0] == 'quit':
+				self.closeConn()
 			elif data[0] == 'create' and data[1] == 'game':
 				self, msg = rules.createGame(data[2], self)
 				self.transport.write(msg)				
 			elif data[0] == 'join' and data[1] == 'game':
 				self, msg = rules.joinGame(data[2], storage.getPlayer(self.name), self)
+				if msg == rules.CODES['success']:
+					self.sendToGame(msg)
+				else:
+					self.transport.write(msg)
+			elif data[0] == 'quit' and data[1] == 'game':
+				self, msg = rules.quitGame(self)
+				self.transport.write(msg)
 			else:
-				self.transport.write('unknown command\n')
-		except Exception as e:
-			print e
-			self.transport.write('malformed command\n')
+				self.transport.write(rules.CODES['failed'])
+		except IndexError as e:
+			self.transport.write(rules.CODES['failed'])
+		except KeyError as e:
+			self.transport.write(rules.CODES['failed'])
+
+	def sendToGame(self, msg):
+		if self.gamekey == None: 
+			return
+		for name in self.factory.games[self.gamekey]['players'].keys():
+			self.factory.named_clients[name].transport.write(msg)
+
+	def closeConn(self):
+		self, msg = rules.onCloseConn(self)
+		self.transport.write(msg)
+		self.transport.loseConnection()
 
 class FEWGServerFactory(protocol.ServerFactory):
 	def __init__(self, proto, client_limit, game_limit):
@@ -37,11 +61,15 @@ class FEWGServerFactory(protocol.ServerFactory):
 		self.client_limit = client_limit
 		self.game_limit = game_limit
 		self.clients = []
-		self.names = []
+		self.named_clients = {}
 		self.games = {}
 
 	def isFull(self):
 		return len(self.clients) >= self.client_limit
+
+	def sendToAll(self, msg):
+		for c in self.clients:
+			c.transport.write(msg)
 
 from twisted.internet import reactor
 
