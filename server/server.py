@@ -1,4 +1,5 @@
 import storage
+import rules
 
 from twisted.internet import protocol
 from redis import StrictRedis
@@ -11,31 +12,23 @@ class FEWGProtocol(protocol.Protocol):
 		else:
 			self.unnamed_clients.append(self)
 			self.name = None
+			self.gamekey = None
 
 	def dataReceived(self, raw_data):
 		data = raw_data.split()
 		try:
 			if data[0] == 'login':
-				if not login(data[1], data[2]):
-					self.transport.write('login failed\n')
-				else:
-					self.transport.write('login successful\n')
+				self, msg = rules.login(data[1], data[2], self)
+				self.transport.write(msg)
 			elif data[0] == 'create' and data[1] == 'game':
-				self.factory.games[data[2]] = {'players':{}}
+				self, msg = rules.createGame(data[2], self)
+				self.transport.write(msg)				
 			elif data[0] == 'join' and data[1] == 'game':
-				self.factory.games[data]['players'][self.name] = storage.getPlayer(self.name)
+				self, msg = rules.joinGame(data[2], storage.getPlayer(self.name), self)
 			else:
 				self.transport.write('unknown command\n')
 		except Exception:
 			self.transport.write('malformed command\n')
-
-	def login(username, password):
-		if username in self.factory.names:
-			return False
-		else:
-			self.name = username
-			self.factory.names.append(username)
-			return True
 
 class FEWGServerFactory(protocol.ServerFactory):
 	def __init__(self, client_limit, game_limit):
@@ -63,3 +56,6 @@ class FEWGServer(object):
 
 	def onStop(self):
 		storage.writeProperties(self.prop_path, self.properties)
+
+if __name__ == '__main__':
+	FEWGServer().start()
