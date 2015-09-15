@@ -7,16 +7,14 @@ def login(username, password, client):
 	cond1 = username in client.factory.named_clients.keys()
 	cond2 = client.name in client.factory.named_clients.keys()
 	if cond1 or cond2:
-		logMsg('login failed')
-		logMsg('names: '+str(client.factory.named_clients.keys()))
+		logMsg('names='+str(client.factory.named_clients.keys()))
 
 		return client, CODES['failed']
 	else:
 		client.name = username
 		client.factory.named_clients[username] = client
 
-		logMsg(client.name+' logged in')
-		logMsg('names: '+str(client.factory.named_clients.keys()))
+		logMsg('names='+str(client.factory.named_clients.keys()))
 
 		return client, CODES['success']
 
@@ -29,13 +27,11 @@ def createGame(gamename, client):
 	if gamename not in client.factory.games.keys():
 		client.factory.games[gamename] = newGame()
 
-		logMsg('game '+gamename+' created')
-		logMsg('games: '+str(client.factory.games))
+		logMsg('games='+str(client.factory.games))
 
 		return client, CODES['success']
 	else:
-		logMsg('game '+gamename+' not created')
-		logMsg('games: '+str(client.factory.games))
+		logMsg('games='+str(client.factory.games))
 
 		return client, CODES['failed']
 
@@ -48,31 +44,27 @@ def joinGame(gamename, playerdata, client):
 		client.gamekey = gamename
 		client.factory.games[gamename]['players'][client.name] = playerdata
 
-		logMsg(client.name+' added to game '+client.gamekey)
-		logMsg('games: '+str(client.factory.games))
+		logMsg('games='+str(client.factory.games))
 
 		return client, CODES['success']
 	else:
-		logMsg('player not added to game '+gamename)
 		logMsg('client.gamekey='+str(client.gamekey))
-		logMsg('games: '+str(client.factory.games))
+		logMsg('games='+str(client.factory.games))
 
 		return client, CODES['failed']
 
 def quitGame(client):
 	cond1 = client.gamekey != None
 	if cond1:
-		logMsg(client.name+' removed from game '+client.gamekey)
-		logMsg('games: '+str(client.factory.games))
+		logMsg('games='+str(client.factory.games))
 
 		del client.factory.games[client.gamekey]['players'][client.name]
 		client.gamekey = None
 
 		return client, CODES['success']
 	else:
-		logMsg('player not added to game '+gamename)
 		logMsg('client.gamekey='+str(client.gamekey))
-		logMsg('games: '+str(client.factory.games))
+		logMsg('games='+str(client.factory.games))
 
 		return client, CODES['failed']
 
@@ -81,16 +73,14 @@ def logout(client):
 
 	cond1 = client.name != None
 	if cond1:
-		logMsg(client.name+' logged in')
-		logMsg('names: '+str(client.factory.named_clients.keys()))
+		logMsg('names='+str(client.factory.named_clients.keys()))
 
 		del client.factory.named_clients[client.name]
 		client.name = None
 
 		return client, CODES['success']
 	else:
-		logMsg('login failed')
-		logMsg('names: '+str(client.factory.named_clients.keys()))
+		logMsg('names='+str(client.factory.named_clients.keys()))
 
 		return client, CODES['failed']
 
