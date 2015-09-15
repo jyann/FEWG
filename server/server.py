@@ -1,6 +1,8 @@
 import storage
 import rules
 
+from time import sleep
+
 from twisted.internet import protocol
 from redis import StrictRedis
 
@@ -17,42 +19,45 @@ class FEWGProtocol(protocol.Protocol):
 	def dataReceived(self, raw_data):
 		data = raw_data.split()
 		try:
-			if data[0] == 'login':
-				self, msg = rules.login(data[1], data[2], self)
-				self.transport.write(msg)
-			elif data[0] == 'logout':
-				self, msg = rules.logout(self)
-				self.transport.write(msg)
-			elif data[0] == 'quit':
+			if data[0] == 'quit' and len(data) == 1:
 				self.closeConn()
+
+			elif data[0] == 'login':
+				self = rules.login(data[1], data[2], self)
+
+			elif data[0] == 'logout':
+				self = rules.logout(self)
+
 			elif data[0] == 'create' and data[1] == 'game':
-				self, msg = rules.createGame(data[2], self)
-				self.transport.write(msg)				
+				self = rules.createGame(data[2], self)
+
 			elif data[0] == 'join' and data[1] == 'game':
-				self, msg = rules.joinGame(data[2], storage.getPlayer(self.name), self)
-				if msg == rules.CODES['success']:
-					self.sendToGame(msg)
-				else:
-					self.transport.write(msg)
+				self = rules.joinGame(data[2], storage.getPlayer(self.name), self)
+
 			elif data[0] == 'quit' and data[1] == 'game':
-				self, msg = rules.quitGame(self)
-				self.transport.write(msg)
+				self = rules.quitGame(self)
+
 			else:
 				self.transport.write(rules.CODES['failed'])
+
 		except IndexError as e:
 			self.transport.write(rules.CODES['failed'])
+
 		except KeyError as e:
 			self.transport.write(rules.CODES['failed'])
 
 	def sendToGame(self, msg):
 		if self.gamekey == None: 
-			return
-		for name in self.factory.games[self.gamekey]['players'].keys():
-			self.factory.named_clients[name].transport.write(msg)
+			self.transport.write(msg)
+
+		if msg == rules.CODES['success']:
+			for name in self.factory.games[self.gamekey]['players'].keys():
+				self.factory.named_clients[name].transport.write(msg)
+		else:
+			self.transport.write(msg)
 
 	def closeConn(self):
-		self, msg = rules.onCloseConn(self)
-		self.transport.write(msg)
+		self = rules.onCloseConn(self)
 		self.transport.loseConnection()
 
 class FEWGServerFactory(protocol.ServerFactory):
