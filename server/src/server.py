@@ -5,6 +5,7 @@ from time import sleep
 
 from twisted.internet import protocol
 from redis import StrictRedis
+from redlock import Redlock
 from json import JSONDecoder, JSONEncoder
 
 class FEWGProtocol(protocol.Protocol):
@@ -52,10 +53,12 @@ class FEWGProtocol(protocol.Protocol):
 		self.transport.loseConnection()
 
 class FEWGServerFactory(protocol.ServerFactory):
-	def __init__(self, proto, client_limit, game_limit):
+	def __init__(self, proto, client_limit, game_limit, props):
 		self.protocol = proto
 		self.client_limit = client_limit
 		self.game_limit = game_limit
+		self.properties = props
+
 		self.clients = []
 		self.named_clients = {}
 		self.games = []
@@ -86,7 +89,7 @@ class FEWGServer(object):
 		self.prop_path = prop_path
 		self.properties = storage.readProperties(self.prop_path)
 		reactor.addSystemEventTrigger('before', 'shutdown', self.onStop)
-		reactor.listenTCP(int(self.properties['server_port']), FEWGServerFactory(FEWGProtocol, client_limit, game_limit))
+		reactor.listenTCP(int(self.properties['server_port']), FEWGServerFactory(FEWGProtocol, client_limit, game_limit, self.properties))
 
 	def start(self):
 		reactor.run()
