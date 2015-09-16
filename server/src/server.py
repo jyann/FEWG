@@ -5,6 +5,7 @@ from time import sleep
 
 from twisted.internet import protocol
 from redis import StrictRedis
+from json import JSONDecoder, JSONEncoder
 
 class FEWGProtocol(protocol.Protocol):
 	def connectionMade(self):
@@ -46,16 +47,6 @@ class FEWGProtocol(protocol.Protocol):
 		except KeyError as e:
 			self.transport.write(rules.CODES['failed'])
 
-	def sendToGame(self, msg):
-		if self.gamekey == None: 
-			self.transport.write(msg)
-
-		if msg == rules.CODES['success']:
-			for name in self.factory.games[self.gamekey]['players'].keys():
-				self.factory.named_clients[name].transport.write(msg)
-		else:
-			self.transport.write(msg)
-
 	def closeConn(self):
 		self = rules.onCloseConn(self)
 		self.transport.loseConnection()
@@ -67,7 +58,12 @@ class FEWGServerFactory(protocol.ServerFactory):
 		self.game_limit = game_limit
 		self.clients = []
 		self.named_clients = {}
-		self.games = {}
+		self.games = []
+
+		self.redis_conn = StrictRedis(host=self.properties['redis_address'], port=self.properties['redis_port'])
+		self.redis_lock = Redlock([{'host': self.properties['redis_address'],'port': self.properties['redis_port']}])
+		self.json_decoder = JSONDecoder()
+		self.json_encoder = JSONEncoder()
 
 	def isFull(self):
 		return len(self.clients) >= self.client_limit
@@ -75,6 +71,13 @@ class FEWGServerFactory(protocol.ServerFactory):
 	def sendToAll(self, msg):
 		for c in self.clients:
 			c.transport.write(msg)
+
+	def sendToClients(self, clientnames, msg):
+		if msg == rules.CODES['success']:
+			for name in clientnames:
+				self.factory.named_clients[name].transport.write(msg)
+		else:
+			self.transport.write(msg)
 
 from twisted.internet import reactor
 
@@ -84,7 +87,6 @@ class FEWGServer(object):
 		self.properties = storage.readProperties(self.prop_path)
 		reactor.addSystemEventTrigger('before', 'shutdown', self.onStop)
 		reactor.listenTCP(int(self.properties['server_port']), FEWGServerFactory(FEWGProtocol, client_limit, game_limit))
-		#redis_conn = StrictRedis(host=self.properties['redis_address'], port=self.properties['redis_port'])
 
 	def start(self):
 		reactor.run()
