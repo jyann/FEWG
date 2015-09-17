@@ -1,5 +1,4 @@
-import storage
-import rules
+from serverlogic import storage, rules, gamerules
 
 from time import sleep
 
@@ -35,6 +34,9 @@ class FEWGProtocol(protocol.Protocol):
 
 			elif data[0] == 'join' and data[1] == 'game':
 				self = rules.joinGame(data[2], storage.getPlayer(self.name), self)
+
+			elif data[0] == 'attack':
+				self = gamerules.attack(self, data[1])
 
 			elif data[0] == 'quit' and data[1] == 'game':
 				self = rules.quitGame(self)
