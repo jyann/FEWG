@@ -4,8 +4,8 @@ import rules
 from time import sleep
 
 from twisted.internet import protocol
-from redis import StrictRedis
-from redlock import Redlock
+#from redis import StrictRedis
+#from redlock import Redlock
 from json import JSONDecoder, JSONEncoder
 
 class FEWGProtocol(protocol.Protocol):
@@ -61,10 +61,11 @@ class FEWGServerFactory(protocol.ServerFactory):
 
 		self.clients = []
 		self.named_clients = {}
-		self.games = []
+		self.games = {}
 
-		self.redis_conn = StrictRedis(host=self.properties['redis_address'], port=self.properties['redis_port'])
-		self.redis_lock = Redlock([{'host': self.properties['redis_address'],'port': self.properties['redis_port']}])
+		#self.redis_conn = StrictRedis(host=self.properties['redis_address'], port=self.properties['redis_port'])
+		#self.redis_lock = Redlock([{'host': self.properties['redis_address'],'port': self.properties['redis_port']}])
+
 		self.json_decoder = JSONDecoder()
 		self.json_encoder = JSONEncoder()
 
@@ -76,11 +77,8 @@ class FEWGServerFactory(protocol.ServerFactory):
 			c.transport.write(msg)
 
 	def sendToClients(self, clientnames, msg):
-		if msg == rules.CODES['success']:
-			for name in clientnames:
-				self.factory.named_clients[name].transport.write(msg)
-		else:
-			self.transport.write(msg)
+		for name in clientnames:
+			self.named_clients[name].transport.write(msg)
 
 from twisted.internet import reactor
 
@@ -96,6 +94,3 @@ class FEWGServer(object):
 
 	def onStop(self):
 		storage.writeProperties(self.prop_path, self.properties)
-
-if __name__ == '__main__':
-	FEWGServer().start()
