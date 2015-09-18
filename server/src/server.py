@@ -2,7 +2,7 @@ from serverlogic import storage, serverfuncts, gamefuncts
 
 from time import sleep
 
-from twisted.internet import protocol, reactor
+from twisted.internet import protocol
 #from redis import StrictRedis
 #from redlock import Redlock
 from json import JSONDecoder, JSONEncoder
@@ -22,6 +22,9 @@ class FEWGProtocol(protocol.Protocol):
 		try:
 			if data[0] == 'quit' and len(data) == 1:
 				self.closeConn()
+
+			elif data[0] == serverfuncts.CODES['close connection']:
+				self.transport.loseConnection()
 
 			elif data[0] == 'login':
 				serverfuncts.login(self, data[1], data[2])
@@ -45,18 +48,16 @@ class FEWGProtocol(protocol.Protocol):
 				gamefuncts.defend(self, data[1])
 
 			else:
-				self.transport.write(serverfuncts.CODES['failed'])
+				self.transport.write(serverfuncts.CODES['failed']+'\n')
 
 		except IndexError as e:
-			self.transport.write(serverfuncts.CODES['failed'])
+			self.transport.write(serverfuncts.CODES['failed']+'\n')
 
 		except KeyError as e:
-			self.transport.write(serverfuncts.CODES['failed'])
+			self.transport.write(serverfuncts.CODES['failed']+'\n')
 
 	def closeConn(self):
 		serverfuncts.onCloseConn(self)
-		reactor.callLater(2, self.transport.loseConnection)
-		#self.transport.loseConnection()
 
 class FEWGServerFactory(protocol.ServerFactory):
 	def __init__(self, proto, client_limit, game_limit, props):
@@ -86,7 +87,7 @@ class FEWGServerFactory(protocol.ServerFactory):
 		for name in clientnames:
 			self.named_clients[name].transport.write(msg)
 
-#from twisted.internet import reactor
+from twisted.internet import reactor
 
 class FEWGServer(object):
 	def __init__(self, prop_path='server.properties', client_limit=10, game_limit=5):

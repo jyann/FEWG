@@ -20,7 +20,7 @@ def attack(client, targetkey):
 
 		sendGameMsg(client)
 	else:
-		client.transport.write(CODES['failed'])
+		client.transport.write(CODES['failed']+'\n')
 
 def defend(client, targetkey):
 	cond1 = ucond1(client, targetkey)
@@ -31,4 +31,4 @@ def defend(client, targetkey):
 
 		sendGameMsg(client)
 	else:
-		client.transport.write(CODES['failed'])
+		client.transport.write(CODES['failed']+'\n')
