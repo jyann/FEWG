@@ -28,7 +28,7 @@ def readProperties(filepath):
 	return data
 
 def getPlayer(name):
-	player = {'stats':{},'vars':{},'kills':0}
+	player = {'stats':{},'vars':{},'exp':0}
 
 	player['stats']['health'] = 10
 	player['vars']['health'] = 10
@@ -39,3 +39,6 @@ def getPlayer(name):
 	player['vars']['defense'] = 0
 
 	return player
+
+def storePlayerData(name, data):
+	pass

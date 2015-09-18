@@ -16,6 +16,7 @@ class FEWGProtocol(protocol.Protocol):
 			self.factory.clients.append(self)
 			self.name = None
 			self.gamekey = None
+			self.playerdata = None
 
 	def dataReceived(self, raw_data):
 		data = raw_data.split()
@@ -36,7 +37,10 @@ class FEWGProtocol(protocol.Protocol):
 				serverfuncts.createGame(self, data[2])
 
 			elif data[0] == 'join' and data[1] == 'game':
-				serverfuncts.joinGame(self, data[2], storage.getPlayer(self.name))
+				serverfuncts.joinGame(self, data[2], self.playerdata)
+
+			elif data[0] == 'levelup':
+				serverfuncts.levelup(self, data[1])
 
 			elif data[0] == 'quit' and data[1] == 'game':
 				serverfuncts.quitGame(self)
@@ -47,13 +51,23 @@ class FEWGProtocol(protocol.Protocol):
 			elif data[0] == 'defend':
 				gamefuncts.defend(self, data[1])
 
+			elif raw_data.strip() == 'get player data': # for debugging
+				msg = self.factory.json_encoder.encode(self.playerdata)+'\n'
+				self.transport.write(msg)
+
+			elif raw_data.strip() == 'get games data': # for debugging
+				msg = self.factory.json_encoder.encode(self.factory.games)+'\n'
+				self.transport.write(msg)
+
 			else:
 				self.transport.write(serverfuncts.CODES['failed']+'\n')
 
 		except IndexError as e:
+			print e
 			self.transport.write(serverfuncts.CODES['failed']+'\n')
 
 		except KeyError as e:
+			print e
 			self.transport.write(serverfuncts.CODES['failed']+'\n')
 
 	def closeConn(self):

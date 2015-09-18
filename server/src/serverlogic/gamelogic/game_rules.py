@@ -28,7 +28,7 @@ def check_end_game(game):
 def incrementKillCount(game, player, targetkey):
 	if targetkey not in game['graveyard']:
 		# target not already dead
-		player['kills'] += 1
+		player['exp'] += 1
 
 # Command functions:
 
