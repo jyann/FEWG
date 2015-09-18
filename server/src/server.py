@@ -35,14 +35,14 @@ class FEWGProtocol(protocol.Protocol):
 			elif data[0] == 'join' and data[1] == 'game':
 				serverfuncts.joinGame(self, data[2], storage.getPlayer(self.name))
 
+			elif data[0] == 'quit' and data[1] == 'game':
+				serverfuncts.quitGame(self)
+
 			elif data[0] == 'attack':
 				gamefuncts.attack(self, data[1])
 
 			elif data[0] == 'defend':
 				gamefuncts.defend(self, data[1])
-
-			elif data[0] == 'quit' and data[1] == 'game':
-				serverfuncts.quitGame(self)
 
 			else:
 				self.transport.write(serverfuncts.CODES['failed'])
