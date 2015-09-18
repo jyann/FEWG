@@ -4,7 +4,12 @@ invalidNames = ['NONE']
 def logMsg(msg):
 	print msg
 
-def login(username, password, client, sendMsg=True):
+def sendGameMsg(client):
+	clientlist = client.factory.games[client.gamekey]['players'].keys()
+	msg = client.factory.json_encoder.encode(client.factory.games[client.gamekey])
+	client.factory.sendToClients(clientlist, msg+'\n')
+
+def login(client, username, password, sendMsg=True):
 	# cond1: name not in use
 	cond1 = username not in client.factory.named_clients.keys()
 	# cond2: not already logged in
@@ -18,11 +23,9 @@ def login(username, password, client, sendMsg=True):
 		if sendMsg:
 			msg = client.factory.json_encoder.encode(client.factory.games.keys())
 			client.transport.write(msg+'\n')
-		return client
 	else:
 		if sendMsg:
 			client.transport.write(CODES['failed'])
-		return client
 
 def newGame():
 	game = {}
@@ -31,10 +34,12 @@ def newGame():
 	game['winner'] = 'NONE'
 	return game
 
-def createGame(gamename, client, sendMsg=True):
+def createGame(client, gamename, sendMsg=True):
 	#if client.factory.redis_conn.setnx(gamename, newGame()):
 
+	# cond1: game doesn't already exist
 	cond1 = gamename not in client.factory.games.keys()
+	# cond2: client logged in
 	cond2 = client.name != None
 	if cond1 and cond2:
 		client.factory.games[gamename] = newGame()
@@ -43,19 +48,18 @@ def createGame(gamename, client, sendMsg=True):
 			clientlist = client.factory.named_clients.keys()
 			msg = client.factory.json_encoder.encode(client.factory.games.keys())
 			client.factory.sendToClients(clientlist, msg+'\n')
-		return client
-
 	else:
 		if sendMsg:
 			client.transport.write(CODES['failed'])
-		return client
 
-def joinGame(gamename, playerdata, client, sendMsg=True):
+def joinGame(client, gamename, playerdata, sendMsg=True):
+	# cond1: client logged in
 	cond1 = client.name != None
+	# cond2: client not already in a game
 	cond2 = client.gamekey == None
+	# cond3: game exists
 	cond3 = gamename in client.factory.games.keys()
-	cond4 = client.name not in client.factory.games[gamename]['players'].keys()
-	if cond1 and cond2 and cond3 and cond4:
+	if cond1 and cond2 and cond3:
 		client.gamekey = gamename
 
 		#rl = client.factory.redis_lock.lock(gamename, 1000) # lock game
@@ -70,17 +74,13 @@ def joinGame(gamename, playerdata, client, sendMsg=True):
 		client.factory.games[gamename]['players'][client.name] = playerdata
 		
 		if sendMsg:
-			clientlist = client.factory.games[gamename]['players'].keys()
-			msg = client.factory.json_encoder.encode(client.factory.games[gamename])
-			client.factory.sendToClients(clientlist, msg+'\n')
-		return client
-
+			sendGameMsg(client)
 	else:
 		if sendMsg:
 			client.transport.write(CODES['failed'])
-		return client
 
 def quitGame(client, sendMsg=True):
+	# cond1: client in a game
 	cond1 = client.gamekey != None
 	if cond1:
 		gamename = client.gamekey
@@ -101,17 +101,14 @@ def quitGame(client, sendMsg=True):
 			msg = client.factory.json_encoder.encode(client.factory.games[gamename])
 			client.factory.sendToClients(clientlist, msg+'\n')
 			client.transport.write(CODES['success'])
-
-		return client
-
 	else:
 		if sendMsg:
 			client.transport.write(CODES['failed'])
-		return client
 
 def logout(client, sendMsg=True):
-	client = quitGame(client, False)
+	quitGame(client, False)
 
+	# cond1: client logged in
 	cond1 = client.name != None
 	if cond1:
 		del client.factory.named_clients[client.name]
@@ -119,17 +116,12 @@ def logout(client, sendMsg=True):
 
 		if sendMsg:
 			client.transport.write(CODES['success'])
-		return client
-
 	else:
 		if sendMsg:
 			client.transport.write(CODES['failed'])
-		return client
 
 def onCloseConn(client, sendMsg=True):
-	client = logout(client)
+	logout(client, False)
 	if sendMsg:
 		client.transport.write(CODES['shutdown'])
 	client.factory.clients.remove(client)
-
-	return client

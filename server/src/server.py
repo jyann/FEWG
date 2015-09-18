@@ -1,8 +1,8 @@
-from serverlogic import storage, rules, gamerules
+from serverlogic import storage, serverfuncts, gamefuncts
 
 from time import sleep
 
-from twisted.internet import protocol
+from twisted.internet import protocol, reactor
 #from redis import StrictRedis
 #from redlock import Redlock
 from json import JSONDecoder, JSONEncoder
@@ -24,35 +24,39 @@ class FEWGProtocol(protocol.Protocol):
 				self.closeConn()
 
 			elif data[0] == 'login':
-				self = rules.login(data[1], data[2], self)
+				serverfuncts.login(self, data[1], data[2])
 
 			elif data[0] == 'logout':
-				self = rules.logout(self)
+				serverfuncts.logout(self)
 
 			elif data[0] == 'create' and data[1] == 'game':
-				self = rules.createGame(data[2], self)
+				serverfuncts.createGame(self, data[2])
 
 			elif data[0] == 'join' and data[1] == 'game':
-				self = rules.joinGame(data[2], storage.getPlayer(self.name), self)
+				serverfuncts.joinGame(self, data[2], storage.getPlayer(self.name))
 
 			elif data[0] == 'attack':
-				self = gamerules.attack(self, data[1])
+				gamefuncts.attack(self, data[1])
+
+			elif data[0] == 'defend':
+				gamefuncts.defend(self, data[1])
 
 			elif data[0] == 'quit' and data[1] == 'game':
-				self = rules.quitGame(self)
+				serverfuncts.quitGame(self)
 
 			else:
-				self.transport.write(rules.CODES['failed'])
+				self.transport.write(serverfuncts.CODES['failed'])
 
 		except IndexError as e:
-			self.transport.write(rules.CODES['failed'])
+			self.transport.write(serverfuncts.CODES['failed'])
 
 		except KeyError as e:
-			self.transport.write(rules.CODES['failed'])
+			self.transport.write(serverfuncts.CODES['failed'])
 
 	def closeConn(self):
-		self = rules.onCloseConn(self)
-		self.transport.loseConnection()
+		serverfuncts.onCloseConn(self)
+		reactor.callLater(2, self.transport.loseConnection)
+		#self.transport.loseConnection()
 
 class FEWGServerFactory(protocol.ServerFactory):
 	def __init__(self, proto, client_limit, game_limit, props):
@@ -82,7 +86,7 @@ class FEWGServerFactory(protocol.ServerFactory):
 		for name in clientnames:
 			self.named_clients[name].transport.write(msg)
 
-from twisted.internet import reactor
+#from twisted.internet import reactor
 
 class FEWGServer(object):
 	def __init__(self, prop_path='server.properties', client_limit=10, game_limit=5):
