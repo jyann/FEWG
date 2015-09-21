@@ -21,14 +21,14 @@ The client is not yet functional. Check back later!
 
 3. Navigate to the server directory in the project root. If you'd like to use the included virtual environment, run:
 
-> source venv/bin/activate
+`source venv/bin/activate`
 
 Otherwise install the required modules by running:
 
-> pip install twisted
+`pip install twisted`
 
 ###2. Running the Server
 
 1. Navigate to the project's root directory and run:
 
-> python run_server.py
+`python run_server.py`
