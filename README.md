@@ -3,9 +3,9 @@
 
 FEWG is a simple command-based multi-player game.
 
-The server is written in Python and requires Twisted to run.
+The server is written in Python and requires Twisted and TwistedWebsocket to run.
 
-The client is written in Java.
+The client is written in Javascript using WebSockets (requires HTML5). 
 
 ##1. Client
 
@@ -23,9 +23,10 @@ The client is not yet functional. Check back later!
 
 `source venv/bin/activate`
 
-Otherwise install the required modules by running:
+Otherwise install the required modules by running the following commands:
 
 `pip install twisted`
+`pip install TwistedWebsocket`
 
 ###2. Running the Server
 
