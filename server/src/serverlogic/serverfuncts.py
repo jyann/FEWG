@@ -32,10 +32,10 @@ def login(client, username, password, sendMsg=True):
 		client.factory.named_clients[username] = client
 
 		if sendMsg:
-			client.transport.write(gamesList(client)+'\n')
+			client.sendMessage(gamesList(client)+'\n')
 	else:
 		if sendMsg:
-			client.transport.write(CODES['failed']+'\n')
+			client.sendMessage(CODES['failed']+'\n')
 
 def newGame():
 	game = {}
@@ -60,7 +60,7 @@ def createGame(client, gamename, sendMsg=True):
 			client.factory.sendToClients(clientlist, msg+'\n')
 	else:
 		if sendMsg:
-			client.transport.write(CODES['failed']+'\n')
+			client.sendMessage(CODES['failed']+'\n')
 
 def joinGame(client, gamename, playerdata, sendMsg=True):
 	# cond1: client logged in
@@ -87,7 +87,7 @@ def joinGame(client, gamename, playerdata, sendMsg=True):
 			sendGameMsg(client)
 	else:
 		if sendMsg:
-			client.transport.write(CODES['failed']+'\n')
+			client.sendMessage(CODES['failed']+'\n')
 
 def quitGame(client, sendMsg=True):
 	# cond1: client in a game
@@ -116,10 +116,10 @@ def quitGame(client, sendMsg=True):
 			clientlist = client.factory.games[gamename]['players'].keys()
 			msg = client.factory.json_encoder.encode(client.factory.games[gamename])
 			client.factory.sendToClients(clientlist, msg+'\n')
-			client.transport.write(gamesList(client)+'\n')
+			client.sendMessage(gamesList(client)+'\n')
 	else:
 		if sendMsg:
-			client.transport.write(CODES['failed']+'\n')
+			client.sendMessage(CODES['failed']+'\n')
 
 def levelup(client, statname):
 	cond1 = client.playerdata != None
@@ -129,9 +129,9 @@ def levelup(client, statname):
 		client.playerdata['stats'][statname] += 1
 		client.playerdata['exp'] -= 1
 
-		client.transport.write(CODES['success']+'\n')
+		client.sendMessage(CODES['success']+'\n')
 	else:
-		client.transport.write(CODES['failed']+'\n')
+		client.sendMessage(CODES['failed']+'\n')
 
 def logout(client, sendMsg=True):
 	quitGame(client, False)
@@ -143,13 +143,13 @@ def logout(client, sendMsg=True):
 		client.name = None
 
 		if sendMsg:
-			client.transport.write(CODES['success']+'\n')
+			client.sendMessage(CODES['success']+'\n')
 	else:
 		if sendMsg:
-			client.transport.write(CODES['failed']+'\n')
+			client.sendMessage(CODES['failed']+'\n')
 
 def onCloseConn(client, sendMsg=True):
 	logout(client, False)
 	if sendMsg:
-		client.transport.write('confirm with code:'+CODES['close connection']+'\n')
+		client.sendMessage('confirm with code:'+CODES['close connection']+'\n')
 	client.factory.clients.remove(client)

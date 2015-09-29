@@ -2,30 +2,40 @@ from serverlogic import storage, serverfuncts, gamefuncts
 
 from time import sleep
 
-from twisted.internet import protocol
+from twisted.internet.protocol import ServerFactory
+from TwistedWebsocket.server import Protocol
+import re
 #from redis import StrictRedis
 #from redlock import Redlock
 from json import JSONDecoder, JSONEncoder
 
-class FEWGProtocol(protocol.Protocol):
-	def connectionMade(self):
+class FEWGProtocol(Protocol):
+	def onHandshake(self, header):
+		g = re.search('Origin\s*:\s*(\S+)', header)
+		if not g: return
+		print 'handshake successful'
+
+	def onConnect(self):
+		print 'connection made'
 		if self.factory.isFull():
-			self.transport.write('server full\n')
-			self.transport.loseConnection()
+			self.sendMessage('server full\n')
+			self.abortConnection()
 		else:
+			self.sendMessage('Connection made\n')
 			self.factory.clients.append(self)
 			self.name = None
 			self.gamekey = None
 			self.playerdata = None
 
-	def dataReceived(self, raw_data):
+	def onMessage(self, raw_data):
+		print raw_data
 		data = raw_data.split()
 		try:
 			if data[0] == 'quit' and len(data) == 1:
 				self.closeConn()
 
 			elif data[0] == serverfuncts.CODES['close connection']:
-				self.transport.loseConnection()
+				self.abortConnection()
 
 			elif data[0] == 'login':
 				serverfuncts.login(self, data[1], data[2])
@@ -53,27 +63,28 @@ class FEWGProtocol(protocol.Protocol):
 
 			elif raw_data.strip() == 'get player data': # for debugging
 				msg = self.factory.json_encoder.encode(self.playerdata)+'\n'
-				self.transport.write(msg)
+				self.sendMessage(msg)
 
 			elif raw_data.strip() == 'get games data': # for debugging
 				msg = self.factory.json_encoder.encode(self.factory.games)+'\n'
-				self.transport.write(msg)
+				self.sendMessage(msg)
 
 			else:
-				self.transport.write(serverfuncts.CODES['failed']+'\n')
+				self.sendMessage(serverfuncts.CODES['failed']+'\n')
 
 		except IndexError as e:
 			print e
-			self.transport.write(serverfuncts.CODES['failed']+'\n')
+			self.sendMessage(serverfuncts.CODES['failed']+'\n')
 
 		except KeyError as e:
 			print e
-			self.transport.write(serverfuncts.CODES['failed']+'\n')
+			self.sendMessage(serverfuncts.CODES['failed']+'\n')
 
 	def closeConn(self):
+		print 'client closing'
 		serverfuncts.onCloseConn(self)
 
-class FEWGServerFactory(protocol.ServerFactory):
+class FEWGServerFactory(ServerFactory):
 	def __init__(self, proto, client_limit, game_limit, props):
 		self.protocol = proto
 		self.client_limit = client_limit
@@ -95,11 +106,11 @@ class FEWGServerFactory(protocol.ServerFactory):
 
 	def sendToAll(self, msg):
 		for c in self.clients:
-			c.transport.write(msg)
+			c.sendMessage(msg)
 
 	def sendToClients(self, clientnames, msg):
 		for name in clientnames:
-			self.named_clients[name].transport.write(msg)
+			self.named_clients[name].sendMessage(msg)
 
 from twisted.internet import reactor
 
