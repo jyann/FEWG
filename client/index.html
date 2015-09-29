@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+
+<title>FEWG Client</title>
+<script 
+src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+</script>
+<script>
+$(document).ready(function(){
+	if(window.WebSocket === undefined){
+		$("#GameFrame")
+		.html('<p>WebSockets are not supported on this browser</p>');
+	}
+	else{
+		var wsAddr = "ws://localhost:1234";
+		websock = new WebSocket(wsAddr);
+		websock.onopen = function(msg){
+			$("#ConnStatus").html('<p>Connected</p>');
+		};
+		websock.onclose = function(msg){
+			$("#ConnStatus").html('<p>Disconnected: '+msg.reason+'</p>');
+		};
+		websock.onmessage = function(msg){
+			$("#GameFrame").html(msg.data);
+		};
+		websock.onerror = function(msg){
+			$("#ConnStatus").html('<p>Connection error</p>');
+		};
+
+		$("#GameInput").keypress(function(e){
+			if(e.which == 13){
+				websock.send($("#GameInput").val());
+				$("#GameInput").val('');
+			}
+		});
+	}
+});
+</script>
+
+</head>
+<body>
+	<div id="GameFrame"></div>
+	<input id="GameInput" type="text"/>
+	<div id="ConnStatus"></div>
+</body>
+</html>
