@@ -1,2 +1,3 @@
 *.pyc
 *.properties
+*.DS_Store
