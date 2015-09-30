@@ -16,17 +16,22 @@ function putLoginUI(){
 
 function putLobbyUI(data){
 	$("#GameFrame").html(data);
-	var formhtml = '<input id="GameName" type="text"/>'
-				+ '<button id="CreateGame">Create</button>'
-				+ '<button id="JoinGame">Join</button>';
+	var formhtml = '<button id="LogoutBtn">Logout</button><br/>'
+				+ '<input id="GameName" type="text"/>'
+				+ '<button id="CreateGameBtn">Create</button>'
+				+ '<button id="JoinGameBtn">Join</button>';
 	$("#InputForm").html(formhtml);
 
-	$("#CreateGame").click(function(){
+	$("#LogoutBtn").click(function(){
+		var msg = 'logout';
+		websock.send(msg);
+	});
+	$("#CreateGameBtn").click(function(){
 		var msg = 'create game '
 				+ $("#GameName").val();
 		websock.send(msg);
 	});
-	$("#JoinGame").click(function(){
+	$("#JoinGameBtn").click(function(){
 		var msg = 'join game '
 				+ $("#GameName").val();
 		websock.send(msg);
@@ -34,10 +39,28 @@ function putLobbyUI(data){
 }
 
 function putGameUI(data){
-	$("#GameFrame").html(data);
-	var formhtml = '<input id="GameInput" type="text"/>';
+	var jsondata = JSON.parse(data);
+	var html = '<table><tr>';
+	$.each(jsondata.game.players, function(key, item){
+		html += '<td> Player: '+key+'<br/>'
+			+'HP: '+item.vars.health+'/'+item.stats.health+'<br/>'
+			+'DEF: '+item.vars.defense+'</td>';
+	});
+	$("#GameFrame").html(html);
+
+	var formhtml = '<button id="QuitGameBtn">Quit Game</button>'
+			+ '<button id="LogoutBtn">Logout</button><br/>'
+			+ '<input id="GameInput" type="text"/>';
 	$("#InputForm").html(formhtml);
 
+	$("#QuitGameBtn").click(function(){
+		var msg = 'quit game';
+		websock.send(msg);
+	});
+	$("#LogoutBtn").click(function(){
+		var msg = 'logout';
+		websock.send(msg);
+	});
 	$("#GameInput").keypress(function(e){
 		if(e.which == 13){
 			websock.send($("#GameInput").val());
@@ -63,7 +86,8 @@ function updateUI(data){
 		}
 	}
 	else if(state == 'logged in'){
-		if(data == 'logged out'){
+		if(data == 'logged out' 
+		|| JSON.parse(data).confirmation_code != undefined){
 			state = 'login';
 			putLoginUI();
 		}
