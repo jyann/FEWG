@@ -51,4 +51,4 @@ def attack(game, playerkey, targetkey):
 def defend(game, playerkey, targetkey):
 	player, target = extract_players(game, playerkey, targetkey)
 
-	player['vars']['defense'] += target['stats']['defense']
+	target['vars']['defense'] += player['stats']['defense']
