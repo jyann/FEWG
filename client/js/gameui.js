@@ -1,3 +1,4 @@
+
 function putLoginUI(){
 	$("#GameFrame").html('<p>Enter a name:</p>');
 	var formhtml = '<input id="Username" type="text"/>'
