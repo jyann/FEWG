@@ -15,8 +15,10 @@ def sendGameMsg(client):
 	msg = client.factory.json_encoder.encode({'game':client.factory.games[client.gamekey]})
 	client.factory.sendToClients(clientlist, msg)
 
-def gamesList(client):
-	return client.factory.json_encoder.encode({'gameslist':client.factory.games.keys()})
+def gamesList(client, status='null'):
+	gamedict = {'status': status}
+	gamedict['gameslist'] = client.factory.games.keys()
+	return client.factory.json_encoder.encode(gamedict)
 
 def login(client, username, password, sendMsg=True):
 	# cond1: name not in use
@@ -114,9 +116,9 @@ def quitGame(client, sendMsg=True):
 
 		if sendMsg:
 			clientlist = client.factory.games[gamename]['players'].keys()
-			msg = client.factory.json_encoder.encode(client.factory.games[gamename])
+			msg = client.factory.json_encoder.encode({'game': client.factory.games[gamename]})
 			client.factory.sendToClients(clientlist, msg)
-			client.sendMessage(gamesList(client))
+			client.sendMessage(gamesList(client,'game_quit'))
 	else:
 		if sendMsg:
 			client.sendMessage(CODES['failed'])

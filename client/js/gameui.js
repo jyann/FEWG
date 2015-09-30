@@ -40,13 +40,14 @@ function putLobbyUI(data){
 
 function putGameUI(data){
 	var jsondata = JSON.parse(data);
+
 	var html = '<table><tr>';
 	$.each(jsondata.game.players, function(key, item){
 		html += '<td> Player: '+key+'<br/>'
 			+'HP: '+item.vars.health+'/'+item.stats.health+'<br/>'
 			+'DEF: '+item.vars.defense+'</td>';
 	});
-	$("#GameFrame").html(html);
+	$("#GameFrame").html(html+'</tr></table><hr/>');
 
 	var formhtml = '<button id="QuitGameBtn">Quit Game</button>'
 			+ '<button id="LogoutBtn">Logout</button><br/>'
@@ -81,22 +82,33 @@ function updateUI(data){
 			putLoginUI();
 		}
 		else{
-			state = 'logged in';
+			state = 'inlobby';
 			putLobbyUI(data);
 		}
 	}
-	else if(state == 'logged in'){
-		if(data == 'logged out' 
-		|| JSON.parse(data).confirmation_code != undefined){
+	if(state == 'inlobby'){
+		if(data == 'logged out'){
 			state = 'login';
 			putLoginUI();
 		}
-		else if(JSON.parse(data).gameslist != undefined){
-			putLobbyUI(data);
-		}
-		else if(JSON.parse(data).game != undefined){
+		if(JSON.parse(data).game != undefined){
+			state = 'ingame';
 			putGameUI(data);
 		}
+		if(JSON.parse(data).gameslist != undefined)
+			putLobbyUI(data);
+	}
+	if(state == 'ingame'){
+		if(data == 'logged out'){
+			state = 'login';
+			putLoginUI();
+		}
+		if(JSON.parse(data).status == 'game_quit'){
+			state = 'inlobby';
+			putLobbyUI(data);
+		}
+		if(JSON.parse(data).game != undefined)
+			putGameUI(data);
 	}
 
 	if(data == 'server full')

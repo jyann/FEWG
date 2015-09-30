@@ -43,6 +43,7 @@ class FEWGProtocol(Protocol):
 			elif data[0] == 'logout':
 				serverfuncts.logout(self)
 				print 'Players: '+str(self.factory.named_clients.keys())
+				print 'Games: '+str(self.factory.games)
 
 			elif data[0] == 'create' and data[1] == 'game':
 				serverfuncts.createGame(self, data[2])
