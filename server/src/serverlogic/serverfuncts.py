@@ -17,7 +17,7 @@ def sendGameMsg(client):
 
 def gamesList(client, status='null'):
 	gamedict = {'status': status}
-	gamedict['gameslist'] = client.factory.games.keys()
+	gamedict['gameslist'] = [{'name':k,'player_count':len(v['players'])} for k, v in client.factory.games.items()]
 	return client.factory.json_encoder.encode(gamedict)
 
 def login(client, username, password, sendMsg=True):
