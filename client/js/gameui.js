@@ -15,7 +15,15 @@ function putLoginUI(){
 }
 
 function putLobbyUI(data){
-	$("#GameFrame").html(data);
+	var jsondata = JSON.parse(data);
+
+	var html = '<table><tr>';
+	$.each(jsondata.gameslist, function(key, item){
+		html += '<td>Game: '+item.name+'<br/>'
+			+ 'Players: '+item.player_count+'</td>';
+	});
+	$("#GameFrame").html(html+'</tr></table>');
+
 	var formhtml = '<button id="LogoutBtn">Logout</button><br/>'
 				+ '<input id="GameName" type="text"/>'
 				+ '<button id="CreateGameBtn">Create</button>'
@@ -132,11 +140,11 @@ $(document).ready(function(){
 			$("#ConnStatus").html('<p>Disconnected</p>');
 		};
 		websock.onmessage = function(msg){
-			$("#LogView").text(msg.data);
+			//$("#LogView").text(msg.data);
 			updateUI(msg.data);
 		};
 		websock.onerror = function(msg){
-			$("#GameFrame").html('<p class="err">Connection error</p>');
+			$("#LogView").html('<p class="err">Connection error</p>');
 		};
 	}
 
