@@ -114,3 +114,33 @@ function updateUI(data){
 	if(data == 'server full')
 		$("#GameFrame").html('The server is currently full. Try again later.');
 }
+
+$(document).ready(function(){
+	if(window.WebSocket === undefined){
+		$("#GameFrame")
+		.html('<p>This application requires Websocket support. Update your browser or try a different one.</p>');
+	}
+	else{
+		var wsAddr = "ws://localhost:1234";
+		websock = new WebSocket(wsAddr);
+		websock.onopen = function(msg){
+			initUI();
+		};
+		websock.onclose = function(msg){
+			$("#GameFrame").html('');
+			$("#InputForm").html('');
+			$("#ConnStatus").html('<p>Disconnected</p>');
+		};
+		websock.onmessage = function(msg){
+			$("#LogView").text(msg.data);
+			updateUI(msg.data);
+		};
+		websock.onerror = function(msg){
+			$("#GameFrame").html('<p class="err">Connection error</p>');
+		};
+	}
+
+	window.onbeforeunload = function(){
+		websock.send('logout');
+	};
+});

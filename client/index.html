@@ -16,41 +16,12 @@ src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
 <script 
 src="js/gameui.js">
 </script>
-<script>
-$(document).ready(function(){
-	if(window.WebSocket === undefined){
-		$("#GameFrame")
-		.html('<p>This application requires Websocket support. Update your browser or try a different one.</p>');
-	}
-	else{
-		var wsAddr = "ws://localhost:1234";
-		websock = new WebSocket(wsAddr);
-		websock.onopen = function(msg){
-			initUI();
-		};
-		websock.onclose = function(msg){
-			$("#GameFrame").html('');
-			$("#InputForm").html('');
-			$("#ConnStatus").html('<p>Disconnected</p>');
-		};
-		websock.onmessage = function(msg){
-			updateUI(msg.data);
-		};
-		websock.onerror = function(msg){
-			$("#GameFrame").html('<p class="err">Connection error</p>');
-		};
-	}
-
-	window.onbeforeunload = function(){
-		websock.send('logout');
-	};
-});
-</script>
 
 </head>
 <body>
 	<div id="GameFrame"></div>
 	<div id="InputForm"></div>
 	<div id="ConnStatus"></div>
+	<div id="LogView"></div>
 </body>
 </html>
