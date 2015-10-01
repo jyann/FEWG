@@ -67,23 +67,23 @@ class FEWGProtocol(Protocol):
 				gamefuncts.defend(self, data[1])
 
 			elif raw_data.strip() == 'get player data': # for debugging
-				msg = self.factory.json_encoder.encode(self.playerdata)+'\n'
+				msg = self.factory.json_encoder.encode(self.playerdata)
 				self.sendMessage(msg)
 
 			elif raw_data.strip() == 'get games data': # for debugging
-				msg = self.factory.json_encoder.encode(self.factory.games)+'\n'
+				msg = self.factory.json_encoder.encode(self.factory.games)
 				self.sendMessage(msg)
 
 			else:
-				self.sendMessage(serverfuncts.CODES['failed']+'\n')
+				self.sendMessage(serverfuncts.CODES['failed'])
 
 		except IndexError as e:
 			print e
-			self.sendMessage(serverfuncts.CODES['failed']+'\n')
+			self.sendMessage(serverfuncts.CODES['failed'])
 
 		except KeyError as e:
 			print e
-			self.sendMessage(serverfuncts.CODES['failed']+'\n')
+			self.sendMessage(serverfuncts.CODES['failed'])
 
 	def closeConn(self):
 		print 'client closing'
