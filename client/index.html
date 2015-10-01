@@ -24,8 +24,32 @@ src="js/gameui.js">
 
 </head>
 <body>
+	<div>
+		<button id="QuitGameBtn" hidden>Quit Game</button>
+		<button id="LogoutBtn" hidden>Logout</button>
+		<button id="DisconnectBtn" hidden>Disconnect</button>
+	</div>
 	<div id="GameFrame"></div>
-	<div id="InputForm"></div>
+	<div id="InputForm">
+		<div id="ConnectForm">
+			<input id="AddrInput" type="text"/>
+			<input id="PortInput" type="text"/>
+			<button id="ConnectBtn">Connect</button>
+		</div>
+		<div id="LoginForm">
+			<input id="Username" type="text"/>
+			<input id="Password" type="text"/>
+			<button id="LoginButton">Login</button>
+		</div>
+		<div id="LobbyForm">
+			<input id="GameName" type="text"/>
+			<button id="CreateGameBtn">Create</button>
+			<button id="JoinGameBtn">Join</button>
+		</div>
+		<div id="GameForm">
+			<input id="GameInput" type="text"/>
+		</div>
+	</div>
 	<div id="ConnStatus"></div>
 	<div id="LogView"></div>
 </body>

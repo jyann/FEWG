@@ -1,3 +1,13 @@
+function emptyForms(){
+	$("#AddrInput").val('');
+	$("#PortInput").val('');
+	$("#Username").val('');
+	$("#Password").val('');
+	$("#GameName").val('');
+	$("#GameInput").val('');
+}
+
+// connect ui
 function initConnectUI(){
 	$("#ConnStatus").html('<p>Not Connected</p>');
 	if(state != 'connecting')
@@ -9,19 +19,16 @@ function putConnectUI(){
 	$("#GameFrame").html('<p>Enter server address and port:</p>');
 }
 function putConnectForm(){
-	var formhtml = '<input id="AddrInput" type="text" autofocus/>'
-				+ '<input id="PortInput" type="text"/>'
-				+ '<button id="ConnectBtn">Connect</button>';
-	$("#InputForm").html(formhtml);
+	$("#QuitGameBtn").hide();
+	$("#LogoutBtn").hide();
+	$("#DisconnectBtn").hide();
 
-	$("#ConnectBtn").click(function(){
-		try{
-			connect($("#AddrInput").val()+":"+$("#PortInput").val());
-		}
-		catch(err){
-			$("#LogView").html('<p class="err">Connection error</p>');
-		}
-	});
+	$("#ConnectForm").show();
+	$("#LoginForm").hide();
+	$("#LobbyForm").hide();
+	$("#GameForm").hide();
+
+	emptyForms();
 }
 function connect(serverAddr){
 	websock = new WebSocket('ws://'+serverAddr);
@@ -41,6 +48,7 @@ function connect(serverAddr){
 	};
 }
 
+// login ui
 function initLoginUI(){
 	$("#ConnStatus").html('<p>Connected</p>');
 	if(state != 'login')
@@ -52,19 +60,19 @@ function putLoginUI(){
 	$("#GameFrame").html('<p>Enter a name:</p>');
 }
 function putLoginForm(){
-	var formhtml = '<input id="Username" type="text" autofocus/>'
-				+ '<input id="Password" type="text"/>'
-				+ '<button id="LoginButton">Login</button>';
-	$("#InputForm").html(formhtml);
+	$("#QuitGameBtn").hide();
+	$("#LogoutBtn").hide();
+	$("#DisconnectBtn").show();
 
-	$("#LoginButton").click(function(){
-		var loginMsg = 'login'
-			+ ' ' + $("#Username").val()
-			+ ' ' + $("#Password").val();
-		websock.send(loginMsg);
-	});
+	$("#ConnectForm").hide();
+	$("#LoginForm").show();
+	$("#LobbyForm").hide();
+	$("#GameForm").hide();
+
+	emptyForms();
 }
 
+//lobby ui
 function initLobbyUI(data){
 	if(state != 'inlobby')
 		putLobbyForm();
@@ -82,28 +90,19 @@ function putLobbyUI(data){
 	$("#GameFrame").html(html+'</tr></table>');
 }
 function putLobbyForm(){
-	var formhtml = '<button id="LogoutBtn">Logout</button><br/>'
-				+ '<input id="GameName" type="text" autofocus/>'
-				+ '<button id="CreateGameBtn">Create</button>'
-				+ '<button id="JoinGameBtn">Join</button>';
-	$("#InputForm").html(formhtml);
+	$("#QuitGameBtn").hide();
+	$("#LogoutBtn").show();
+	$("#DisconnectBtn").show();
 
-	$("#LogoutBtn").click(function(){
-		var msg = 'logout';
-		websock.send(msg);
-	});
-	$("#CreateGameBtn").click(function(){
-		var msg = 'create game '
-				+ $("#GameName").val();
-		websock.send(msg);
-	});
-	$("#JoinGameBtn").click(function(){
-		var msg = 'join game '
-				+ $("#GameName").val();
-		websock.send(msg);
-	});
+	$("#ConnectForm").hide();
+	$("#LoginForm").hide();
+	$("#LobbyForm").show();
+	$("#GameForm").hide();
+
+	emptyForms();
 }
 
+// game ui
 function initGameUI(data){
 	if(state != 'ingame')
 		putGameForm();
@@ -122,28 +121,16 @@ function putGameUI(data){
 	$("#GameFrame").html(html+'</tr></table><hr/>');
 }
 function putGameForm(){
-	var formhtml = '<button id="QuitGameBtn">Quit Game</button>'
-			+ '<button id="LogoutBtn">Logout</button><br/>'
-			+ '<input id="GameInput" type="text" autofocus/>';
-	$("#InputForm").html(formhtml);
+	$("#QuitGameBtn").show();
+	$("#LogoutBtn").show();
+	$("#DisconnectBtn").show();
 
-	$("#QuitGameBtn").click(function(){
-		var msg = 'quit game';
-		websock.send(msg);
-	});
-	$("#LogoutBtn").click(function(){
-		var msg = 'logout';
-		websock.send(msg);
-	});
-	$("#GameInput").keypress(function(e){
-		if(e.which == 13){
-			var msg = $("#GameInput").val();
-			if(msg == 'quit')
-				msg += ' game';
-			websock.send(msg);
-			$("#GameInput").val('');
-		}
-	});
+	$("#ConnectForm").hide();
+	$("#LoginForm").hide();
+	$("#LobbyForm").hide();
+	$("#GameForm").show();
+
+	emptyForms();
 }
 
 function updateUI(data){
@@ -170,7 +157,7 @@ function updateUI(data){
 			initLoginUI();
 		}
 		if(JSON.parse(data).status == 'game_quit'){
-			initGameUI(data);
+			initLobbyUI(data);
 		}
 		if(JSON.parse(data).game != undefined)
 			putGameUI(data);
@@ -191,7 +178,66 @@ $(document).ready(function(){
 		initConnectUI();
 	}
 
+	// Button handlers
+	$("#DisconnectBtn").click(function(){
+		if(websock != undefined){
+			var msg = 'quit';
+			websock.send(msg);
+		}
+	});
+	$("#QuitGameBtn").click(function(){
+		if(websock != undefined){
+			var msg = 'quit game';
+			websock.send(msg);
+		}
+	});
+	$("#LogoutBtn").click(function(){
+		if(websock != undefined){
+			var msg = 'logout';
+			websock.send(msg);
+		}
+	});
+	// Connect
+	$("#ConnectBtn").click(function(){
+		try{
+			connect($("#AddrInput").val()+":"+$("#PortInput").val());
+		}
+		catch(err){
+			$("#LogView").html('<p class="err">Connection error</p>');
+		}
+	});
+	// Login
+	$("#LoginButton").click(function(){
+		var loginMsg = 'login'
+			+ ' ' + $("#Username").val()
+			+ ' ' + $("#Password").val();
+		websock.send(loginMsg);
+	});
+	// Lobby
+	$("#CreateGameBtn").click(function(){
+		var msg = 'create game '
+				+ $("#GameName").val();
+		websock.send(msg);
+	});
+	$("#JoinGameBtn").click(function(){
+		var msg = 'join game '
+				+ $("#GameName").val();
+		websock.send(msg);
+	});
+	// Game
+	$("#GameInput").keypress(function(e){
+		if(e.which == 13){
+			var msg = $("#GameInput").val();
+			if(msg == 'quit')
+				msg += ' game';
+			websock.send(msg);
+			$("#GameInput").val('');
+		}
+	});
+
+	// Let server know before leaving
 	window.onbeforeunload = function(){
-		websock.send('logout');
+		if(websock != undefined)
+			websock.send('logout');
 	};
 });
