@@ -152,6 +152,7 @@ def logout(client, sendMsg=True):
 
 def onCloseConn(client, sendMsg=True):
 	logout(client, False)
-	if sendMsg:
-		client.sendMessage('{"confirmation_code":"'+CODES['close connection']+'"}')
+	#if sendMsg:
+	#	client.sendMessage('{"confirmation_code":"'+CODES['close connection']+'"}')
 	client.factory.clients.remove(client)
+	client.abortConnection()

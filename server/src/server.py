@@ -33,8 +33,8 @@ class FEWGProtocol(Protocol):
 			if data[0] == 'quit' and len(data) == 1:
 				self.closeConn()
 
-			elif data[0] == serverfuncts.CODES['close connection']:
-				self.abortConnection()
+			#elif data[0] == serverfuncts.CODES['close connection']:
+				#self.abortConnection()
 
 			elif data[0] == 'login':
 				serverfuncts.login(self, data[1], data[2])
