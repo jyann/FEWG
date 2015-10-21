@@ -1,6 +1,5 @@
 from storage import getPlayer
 
-CODES = {'success':'success', 'failed':'failed', 'close connection':'shutdown'}
 invalidNames = ['NONE']
 
 def logMsg(msg):
@@ -12,34 +11,41 @@ def resetPlayer(player):
 
 def sendGameMsg(client):
 	clientlist = client.factory.games[client.gamekey]['players'].keys()
-	msg = client.factory.json_encoder.encode({'game':client.factory.games[client.gamekey]})
+	resp = {}
+	resp['gamedata'] = client.factory.games[client.gamekey]
+	msg = client.factory.json_encoder.encode(resp)
 	client.factory.sendToClients(clientlist, msg)
 
-def gamesList(client, status='null'):
-	gamedict = {'status': status}
-	gamedict['gameslist'] = [{'name':k,'player_count':len(v['players'])} for k, v in client.factory.games.items()]
-	return client.factory.json_encoder.encode(gamedict)
+def gamesList(client, status='inlobby'):
+	return [{'name':k,'player_count':len(v['players'])} for k, v in client.factory.games.items()]
 
 def login(client, username, password, sendMsg=True):
-	# cond1: name not in use
-	cond1 = username not in client.factory.named_clients.keys()
-	# cond2: not already logged in
-	cond2 = client.name not in client.factory.named_clients.keys()
-	# cond3: name is valid
-	cond3 = username not in invalidNames
-	if cond1 and cond2 and cond3:
+	if client.name in client.factory.named_clients.keys():
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'You are already logged in'
+			client.sendMessage(client.json_encoder.encode(resp))
+	elif username in client.factory.named_clients.keys():
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'That username is already in use'
+			client.sendMessage(client.json_encoder.encode(resp))
+	elif username in invalidNames:
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'That username is not valid, try again'
+			client.sendMessage(client.json_encoder.encode(resp))
+	else:
 		client.name = username
 		client.playerdata = getPlayer(username)
-		
 		client.factory.named_clients[username] = client
 
 		if sendMsg:
-			client.sendMessage(gamesList(client))
-	else:
-		if sendMsg:
-			client.sendMessage(CODES['failed'])
+			resp = {}
+			resp['games'] = gamesList(client)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 
-def newGame():
+def newGame(attr):
 	game = {}
 	game['players'] = {}
 	game['graveyard'] = []
@@ -47,64 +53,65 @@ def newGame():
 	return game
 
 def createGame(client, gamename, sendMsg=True):
-	#if client.factory.redis_conn.setnx(gamename, newGame()):
-
-	# cond1: game doesn't already exist
-	cond1 = gamename not in client.factory.games.keys()
-	# cond2: client logged in
-	cond2 = client.name != None
-	if cond1 and cond2:
-		client.factory.games[gamename] = newGame()
-
+	if gamename in client.factory.games.keys():
 		if sendMsg:
-			clientlist = client.factory.named_clients.keys()
-			msg = gamesList(client)
-			client.factory.sendToClients(clientlist, msg)
+			resp = {}
+			resp['err'] = 'That game already exists'
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	elif client.name == None:
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'You must be logged in to create a game'
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	elif len(client.factory.games) == client.factory.game_limit:
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'Game limit reached, try again later or join another game'
+			client.sendMessage(client.json_encoder.encode(resp))
 	else:
-		if sendMsg:
-			client.sendMessage(CODES['failed'])
+		# no problems detected, create the game
+		client.factory.games[gamename] = newGame(None)
 
-def joinGame(client, gamename, playerdata, sendMsg=True):
-	# cond1: client logged in
-	cond1 = client.name != None
-	# cond2: client not already in a game
-	cond2 = client.gamekey == None
-	# cond3: game exists
-	cond3 = gamename in client.factory.games.keys()
-	if cond1 and cond2 and cond3:
+		clientlist = [k for k, v in client.factory.named_clients.items() if v.gamekey == None]
+
+		if sendMsg:
+			resp = {}
+			resp['games'] = gamesList(client)
+			client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
+			
+
+def joinGame(client, gamename, sendMsg=True):
+	if client.name == None:
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'You must be logged in to join a game'
+			client.sendMessage(client.json_encoder.encode(resp))
+	elif client.gamekey != None:
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'You are already in a game'
+			client.sendMessage(client.json_encoder.encode(resp))
+	elif gamename not in client.factory.games.keys():
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'There is currently no game with that name'
+			client.sendMessage(client.json_encoder.encode(resp))
+	else:
 		client.gamekey = gamename
 
-		#rl = client.factory.redis_lock.lock(gamename, 1000) # lock game
-		#gamestr = client.factory.redis_conn.get(gamename) # get game
-		#game = self.factory.json_decoder(gamestr) # string to dict
-		#if client.name not in game['players'].keys():
-		#	game['players'][client.name] = playerdata # add player
-		#	gamestr = self.factory.json_encoder(game) # dict to string
-		#	client.factory.redis_conn.set(gamename, gamestr) # push change
-		#client.factory.redis_lock.unlock(rl) # unlock game
+		client.factory.games[gamename]['players'][client.name] = client.playerdata
 
-		client.factory.games[gamename]['players'][client.name] = playerdata
-		
 		if sendMsg:
 			sendGameMsg(client)
-	else:
-		if sendMsg:
-			client.sendMessage(CODES['failed'])
 
 def quitGame(client, sendMsg=True):
-	# cond1: client in a game
-	cond1 = client.gamekey != None
-	if cond1:
+	if client.gamekey == None:
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'There is currently no game with that name'
+			client.sendMessage(client.json_encoder.encode(resp))
+	else:
 		gamename = client.gamekey
-
-		#rl = client.factory.redis_lock.lock(gamename, 1000) # lock game
-		#gamestr = client.factory.redis_conn.get(gamename) # get game
-		#game = self.factory.json_decoder(gamestr) # string to dict
-		#players = game['players'].keys() # players to send message to
-		#del game['players'][client.name] # remove player
-		#gamestr = self.factory.json_encoder(game) # dict to string
-		#client.factory.redis_conn.set(gamename, gamestr) # push change
-		#client.factory.redis_lock.unlock(rl) # unlock game
 
 		del client.factory.games[gamename]['players'][client.name]
 		if client.name in client.factory.games[gamename]['graveyard']:
@@ -116,43 +123,63 @@ def quitGame(client, sendMsg=True):
 
 		if sendMsg:
 			clientlist = client.factory.games[gamename]['players'].keys()
-			msg = client.factory.json_encoder.encode({'game': client.factory.games[gamename]})
+			resp = {}
+			resp['data'] = client.factory.games[gamename]
+			msg = client.factory.json_encoder.encode(resp)
 			client.factory.sendToClients(clientlist, msg)
-			client.sendMessage(gamesList(client,'game_quit'))
-	else:
-		if sendMsg:
-			client.sendMessage(CODES['failed'])
 
-def levelup(client, statname):
-	cond1 = client.playerdata != None
-	cond2 = statname in client.playerdata['stats'].keys()
-	cond3 = client.playerdata['exp'] > 0
-	if cond1 and cond2 and cond3:
+			resp = {}
+			resp['games'] = gamesList(client)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+
+def levelup(client, statname, sendMsg=True):
+	if client.playerdata == None:
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'You must be logged in to level up'
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	if statname not in client.playerdata['stats'].keys():
+		if sendMsg:
+			resp = {}
+			resp['err'] = "Couldn't fine that stat, try another again"
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	if client.playerdata['exp'] <= 0:
+		if sendMsg:
+			resp = {}
+			resp['err'] = "You don't have enough XP, win some games first"
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	else:
 		client.playerdata['stats'][statname] += 1
 		client.playerdata['exp'] -= 1
 
-		client.sendMessage(CODES['success'])
-	else:
-		client.sendMessage(CODES['failed'])
+		if sendMsg:
+			resp = {}
+			resp['games'] = gamesList(client)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 
 def logout(client, sendMsg=True):
 	quitGame(client, False)
 
-	# cond1: client logged in
-	cond1 = client.name != None
-	if cond1:
+	if client.name == None:
+		if sendMsg:
+			resp = {}
+			resp['err'] = "You haven't logged in yet"
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+
+	else:
 		del client.factory.named_clients[client.name]
 		client.name = None
 
 		if sendMsg:
-			client.sendMessage('logged out')
-	else:
-		if sendMsg:
-			client.sendMessage(CODES['failed'])
+			resp = {}
+			resp['status'] = 'logged_out'
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 
 def onCloseConn(client, sendMsg=True):
 	logout(client, False)
-	#if sendMsg:
-	#	client.sendMessage('{"confirmation_code":"'+CODES['close connection']+'"}')
+	if sendMsg:
+		resp = {}
+		resp['status'] = 'disconnected'
+		client.sendMessage(client.factory.json_encoder.encode(resp))
 	client.factory.clients.remove(client)
 	client.abortConnection()

@@ -18,7 +18,11 @@ class FEWGProtocol(Protocol):
 	def onConnect(self):
 		print 'connection made'
 		if self.factory.isFull():
-			self.sendMessage('server full')
+			# build response
+			resp = {}
+			resp['err'] = 'server full'
+			self.sendMessage(self.factory.json_encoder.encode(resp))
+
 			self.abortConnection()
 		else:
 			self.factory.clients.append(self)
@@ -32,9 +36,6 @@ class FEWGProtocol(Protocol):
 		try:
 			if data[0] == 'quit' and len(data) == 1:
 				self.closeConn()
-
-			#elif data[0] == serverfuncts.CODES['close connection']:
-				#self.abortConnection()
 
 			elif data[0] == 'login':
 				serverfuncts.login(self, data[1], data[2])
@@ -50,7 +51,7 @@ class FEWGProtocol(Protocol):
 				print 'Games: '+str(self.factory.games)
 
 			elif data[0] == 'join' and data[1] == 'game':
-				serverfuncts.joinGame(self, data[2], self.playerdata)
+				serverfuncts.joinGame(self, data[2])
 				print 'Games: '+str(self.factory.games)
 
 			elif data[0] == 'levelup':
@@ -75,15 +76,19 @@ class FEWGProtocol(Protocol):
 				self.sendMessage(msg)
 
 			else:
-				self.sendMessage(serverfuncts.CODES['failed'])
+				pass
 
 		except IndexError as e:
+			resp = {}
+			resp['err'] = 'malformed command'
+			self.sendMessage(self.factory.json_encoder.encode(resp))
 			print e
-			self.sendMessage(serverfuncts.CODES['failed'])
 
 		except KeyError as e:
+			resp = {}
+			resp['err'] = 'malformed command'
+			self.sendMessage(self.factory.json_encoder.encode(resp))
 			print e
-			self.sendMessage(serverfuncts.CODES['failed'])
 
 	def closeConn(self):
 		print 'client closing'
