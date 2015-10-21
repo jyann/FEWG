@@ -10,13 +10,13 @@
 
 		this.updateStatus = function(){
 			if(ctrl.data.status == 'logged_out')
-				ctrl.status = 'logging_in';
+				ctrl.setStatus('logging_in');
 			else if(ctrl.data.status == 'disconnected')
-				ctrl.status = 'connecting';
+				ctrl.setStatus('connecting');
 			else if(ctrl.data.games != undefined)
-				ctrl.status = 'inlobby';
+				ctrl.setStatus('inlobby');
 			else if(ctrl.data.gamedata != undefined)
-				ctrl.status = 'ingame';
+				ctrl.setStatus('ingame');
 		};
 		
 		this.setStatus = function(msg){
