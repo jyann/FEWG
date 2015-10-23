@@ -1,12 +1,9 @@
 from serverlogic import storage, serverfuncts, gamefuncts
 
-from time import sleep
-
 from twisted.internet.protocol import ServerFactory
 from TwistedWebsocket.server import Protocol
 import re
-#from redis import StrictRedis
-#from redlock import Redlock
+
 from json import JSONDecoder, JSONEncoder
 
 class FEWGProtocol(Protocol):
@@ -104,9 +101,6 @@ class FEWGServerFactory(ServerFactory):
 		self.clients = []
 		self.named_clients = {}
 		self.games = {}
-
-		#self.redis_conn = StrictRedis(host=self.properties['redis_address'], port=self.properties['redis_port'])
-		#self.redis_lock = Redlock([{'host': self.properties['redis_address'],'port': self.properties['redis_port']}])
 
 		self.json_decoder = JSONDecoder()
 		self.json_encoder = JSONEncoder()

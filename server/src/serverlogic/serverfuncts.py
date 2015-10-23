@@ -175,11 +175,8 @@ def logout(client, sendMsg=True):
 			resp['status'] = 'logged_out'
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 
-def onCloseConn(client, sendMsg=True):
+def onCloseConn(client):
 	logout(client, False)
-	if sendMsg:
-		resp = {}
-		resp['status'] = 'disconnected'
-		client.sendMessage(client.factory.json_encoder.encode(resp))
+
 	client.factory.clients.remove(client)
 	client.abortConnection()
