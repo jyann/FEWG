@@ -81,6 +81,7 @@
 			ctrl.ws.onclose = function(){
 				ctrl.setData({"status":"disconnected"});
 				ctrl.setConnected(false);
+				ctrl.setErrMsg('');
 				ctrl.updateStatus();
 			};
 		};
