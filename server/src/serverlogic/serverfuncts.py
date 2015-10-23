@@ -2,10 +2,12 @@ import logging
 
 from storage import getPlayer
 
-logging.basicConfig(filename='server.log', level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, filename='server.log', format='%(asctime)s | %(message)s')
+
 invalidNames = ['NONE']
 
 def logMsg(msg):
+	print msg
 	logging.info(msg)
 
 def resetPlayer(player):
