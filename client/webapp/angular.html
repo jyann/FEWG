@@ -25,9 +25,27 @@ src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 			<input type="text" ng-model="client.server_port"/>
 			<button ng-click="client.openConn()">Connect</button>
 		</div>
-		<div ng-show="client.status != 'connecting'">
-			<input type="text" ng-model="client.input"/>
+		<div ng-show="client.status == 'logging_in'">
+			<input type="text" ng-model="client.username"/>
+			<input type="password" ng-model="client.password"/>
+			<button ng-click="client.sendInput()">Login</button>
+			<br/>
+			<button ng-click="client.sendMsg('quit')">Disconnect</button>
+		</div>
+		<div ng-show="client.status == 'inlobby'">
+			<input type="text" ng-model="client.lobby_input"/>
 			<button ng-click="client.sendInput()">Send</button>
+			<br/>
+			<button ng-click="client.sendMsg('logout')">Logout</button>
+			<button ng-click="client.sendMsg('quit')">Disconnect</button>
+		</div>
+		<div ng-show="client.status == 'ingame'">
+			<input type="text" ng-model="client.game_input"/>
+			<button ng-click="client.sendInput()">Send</button>
+			<br/>
+			<button ng-click="client.sendMsg('quit game')">Quit Game</button>
+			<button ng-click="client.sendMsg('logout')">Logout</button>
+			<button ng-click="client.sendMsg('quit')">Disconnect</button>
 		</div>
 		<div class="err">{{client.err_msg}}</div>
 	</div>
