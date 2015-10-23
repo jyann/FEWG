@@ -33,45 +33,28 @@ class FEWGProtocol(Protocol):
 		try:
 			if data[0] == 'quit' and len(data) == 1:
 				self.closeConn()
-
 			elif data[0] == 'login':
 				serverfuncts.login(self, data[1], data[2])
 				print 'Players: '+str(self.factory.named_clients.keys())
-
 			elif data[0] == 'logout':
 				serverfuncts.logout(self)
 				print 'Players: '+str(self.factory.named_clients.keys())
 				print 'Games: '+str(self.factory.games)
-
 			elif data[0] == 'create' and data[1] == 'game':
 				serverfuncts.createGame(self, data[2])
 				print 'Games: '+str(self.factory.games)
-
 			elif data[0] == 'join' and data[1] == 'game':
 				serverfuncts.joinGame(self, data[2])
 				print 'Games: '+str(self.factory.games)
-
 			elif data[0] == 'levelup':
 				serverfuncts.levelup(self, data[1])
-
 			elif data[0] == 'quit' and data[1] == 'game':
 				serverfuncts.quitGame(self)
 				print 'Games: '+str(self.factory.games)
-
 			elif data[0] == 'attack':
 				gamefuncts.attack(self, data[1])
-
 			elif data[0] == 'defend':
 				gamefuncts.defend(self, data[1])
-
-			elif raw_data.strip() == 'get player data': # for debugging
-				msg = self.factory.json_encoder.encode(self.playerdata)
-				self.sendMessage(msg)
-
-			elif raw_data.strip() == 'get games data': # for debugging
-				msg = self.factory.json_encoder.encode(self.factory.games)
-				self.sendMessage(msg)
-
 			else:
 				pass
 
