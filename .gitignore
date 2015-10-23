@@ -1,3 +1,4 @@
 *.pyc
 *.properties
 *.DS_Store
+*.log
