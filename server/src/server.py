@@ -23,6 +23,7 @@ class FEWGProtocol(Protocol):
 			self.abortConnection()
 		else:
 			self.factory.clients.append(self)
+			self.status = 'logging_in'
 			self.name = None
 			self.gamekey = None
 			self.playerdata = None
@@ -61,12 +62,14 @@ class FEWGProtocol(Protocol):
 		except IndexError as e:
 			resp = {}
 			resp['err'] = 'malformed command'
+			serverfuncts.addStatusInfo(self, resp)
 			self.sendMessage(self.factory.json_encoder.encode(resp))
 			print e
 
 		except KeyError as e:
 			resp = {}
 			resp['err'] = 'malformed command'
+			serverfuncts.addStatusInfo(self, resp)
 			self.sendMessage(self.factory.json_encoder.encode(resp))
 			print e
 

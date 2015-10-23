@@ -9,40 +9,52 @@ def resetPlayer(player):
 	player['vars']['health'] = player['stats']['health']
 	player['vars']['defense'] = 0
 
-def sendGameMsg(client):
-	clientlist = client.factory.games[client.gamekey]['players'].keys()
-	resp = {}
-	resp['gamedata'] = client.factory.games[client.gamekey]
-	msg = client.factory.json_encoder.encode(resp)
-	client.factory.sendToClients(clientlist, msg)
+#def sendGameMsg(client):
+#	clientlist = client.factory.games[client.gamekey]['players'].keys()
+#	resp = {}
+#	resp['gamedata'] = client.factory.games[client.gamekey]
+#	client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
 
-def gamesList(client, status='inlobby'):
+def gamesList(client):
 	return [{'name':k,'player_count':len(v['players'])} for k, v in client.factory.games.items()]
 
+def addStatusInfo(client, resp):
+	if client.status == 'inlobby':
+		resp['games'] = gamesList(client)
+	if client.status == 'ingame':
+		resp['gamedata'] = client.factory.games[client.gamekey]
+
 def login(client, username, password, sendMsg=True):
-	if client.name in client.factory.named_clients.keys():
+	if client.status != 'logging_in':
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'You are already logged in'
-			client.sendMessage(client.json_encoder.encode(resp))
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	elif client.name in client.factory.named_clients.keys():
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'You are already logged in'
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	elif username in client.factory.named_clients.keys():
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'That username is already in use'
-			client.sendMessage(client.json_encoder.encode(resp))
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	elif username in invalidNames:
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'That username is not valid, try again'
-			client.sendMessage(client.json_encoder.encode(resp))
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	else:
+		client.status = 'inlobby'
 		client.name = username
 		client.playerdata = getPlayer(username)
 		client.factory.named_clients[username] = client
 
 		if sendMsg:
 			resp = {}
-			resp['games'] = gamesList(client)
+			addStatusInfo(client, resp)
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 
 def newGame(attr):
@@ -53,30 +65,39 @@ def newGame(attr):
 	return game
 
 def createGame(client, gamename, sendMsg=True):
-	if gamename in client.factory.games.keys():
-		if sendMsg:
-			resp = {}
-			resp['err'] = 'That game already exists'
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-	elif client.name == None:
+	if client.name == None:
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'You must be logged in to create a game'
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	elif client.status != 'inlobby':
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'Must be in lobby to create a game'
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
+	elif gamename in client.factory.games.keys():
+		if sendMsg:
+			resp = {}
+			resp['err'] = 'That game already exists'
+			addStatusInfo(client, resp)
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 	elif len(client.factory.games) == client.factory.game_limit:
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'Game limit reached, try again later or join another game'
-			client.sendMessage(client.json_encoder.encode(resp))
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	else:
 		# no problems detected, create the game
 		client.factory.games[gamename] = newGame(None)
 
-		clientlist = [k for k, v in client.factory.named_clients.items() if v.gamekey == None]
-
 		if sendMsg:
+			clientlist = [k for k, v in client.factory.named_clients.items() if v.gamekey == None]
+
 			resp = {}
-			resp['games'] = gamesList(client)
+			addStatusInfo(client, resp)
 			client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
 			
 
@@ -85,32 +106,42 @@ def joinGame(client, gamename, sendMsg=True):
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'You must be logged in to join a game'
-			client.sendMessage(client.json_encoder.encode(resp))
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	elif client.gamekey != None:
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'You are already in a game'
-			client.sendMessage(client.json_encoder.encode(resp))
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	elif gamename not in client.factory.games.keys():
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'There is currently no game with that name'
-			client.sendMessage(client.json_encoder.encode(resp))
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	else:
+		client.status = 'ingame'
 		client.gamekey = gamename
 
 		client.factory.games[gamename]['players'][client.name] = client.playerdata
 
 		if sendMsg:
-			sendGameMsg(client)
+			clientlist = client.factory.games[client.gamekey]['players'].keys()
+
+			resp = {}
+			addStatusInfo(client, resp)
+			client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
 
 def quitGame(client, sendMsg=True):
 	if client.gamekey == None:
 		if sendMsg:
 			resp = {}
-			resp['err'] = 'There is currently no game with that name'
-			client.sendMessage(client.json_encoder.encode(resp))
+			resp['err'] = 'You are not in a game yet'
+			addStatusInfo(client, resp)
+			client.sendMessage(client.factory.json_encoder.encode(resp))
 	else:
+		client.status = 'inlobby'
 		gamename = client.gamekey
 
 		del client.factory.games[gamename]['players'][client.name]
@@ -124,7 +155,7 @@ def quitGame(client, sendMsg=True):
 		if sendMsg:
 			clientlist = client.factory.games[gamename]['players'].keys()
 			resp = {}
-			resp['data'] = client.factory.games[gamename]
+			resp['gamedata'] = client.factory.games[gamename]
 			msg = client.factory.json_encoder.encode(resp)
 			client.factory.sendToClients(clientlist, msg)
 
@@ -137,18 +168,22 @@ def levelup(client, statname, sendMsg=True):
 		if sendMsg:
 			resp = {}
 			resp['err'] = 'You must be logged in to level up'
+			addStatusInfo(client, resp)
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 	if statname not in client.playerdata['stats'].keys():
 		if sendMsg:
 			resp = {}
 			resp['err'] = "Couldn't fine that stat, try another again"
+			addStatusInfo(client, resp)
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 	if client.playerdata['exp'] <= 0:
 		if sendMsg:
 			resp = {}
 			resp['err'] = "You don't have enough XP, win some games first"
+			addStatusInfo(client, resp)
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 	else:
+		client.status = 'inlobby'
 		client.playerdata['stats'][statname] += 1
 		client.playerdata['exp'] -= 1
 
@@ -167,6 +202,7 @@ def logout(client, sendMsg=True):
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 
 	else:
+		client.status = 'logging_in'
 		del client.factory.named_clients[client.name]
 		client.name = None
 

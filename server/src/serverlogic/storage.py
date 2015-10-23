@@ -28,7 +28,7 @@ def readProperties(filepath):
 	return data
 
 def getPlayer(name):
-	player = {'stats':{},'vars':{},'exp':0}
+	player = {'name':name,'stats':{},'vars':{},'exp':0}
 
 	player['stats']['health'] = 10
 	player['vars']['health'] = 10

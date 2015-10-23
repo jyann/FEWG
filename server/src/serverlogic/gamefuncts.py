@@ -1,18 +1,28 @@
-from serverfuncts import sendGameMsg
+from serverfuncts import addStatusInfo
 from gamelogic import game_rules
 
 def executeGameFunct(client, gameFunct, targetkey):
 	if client.gamekey == None:
 		resp = {}
 		resp['err'] = 'You are not in a game'
-		client.sendMessage(client.json_encoder.encode(resp))
+		addStatusInfo(client, resp)
+		client.sendMessage(client.factory.json_encoder.encode(resp))
 	elif targetkey not in client.factory.games[client.gamekey]['players'].keys():
-		pass
+		resp = {}
+		addStatusInfo(client, resp)
+		client.sendMessage(client.factory.json_encoder.encode(resp))
 	elif client.name in client.factory.games[client.gamekey]['graveyard']:
-		pass
+		resp = {}
+		addStatusInfo(client, resp)
+		client.sendMessage(client.factory.json_encoder.encode(resp))
 	else:
 		gameFunct(client.factory.games[client.gamekey], client.name, targetkey)
-		sendGameMsg(client)
+		
+		clientlist = client.factory.games[client.gamekey]['players'].keys()
+		
+		resp = {}
+		resp['gamedata'] = client.factory.games[client.gamekey]
+		client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
 
 def attack(client, targetkey):
 	executeGameFunct(client, game_rules.attack, targetkey)
