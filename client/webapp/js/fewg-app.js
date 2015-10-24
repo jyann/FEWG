@@ -15,6 +15,7 @@
 		this.updateStatus = function(){
 			if(ctrl.data.status == 'logged_out'){
 				ctrl.setStatus('logging_in');
+				document.getElementById('username_input').focus();
 			}
 			else if(ctrl.data.status == 'disconnected'){
 				if(ctrl.status == 'connecting'){
@@ -24,12 +25,15 @@
 					ctrl.setStatus('connecting');
 					ctrl.ws.close();
 				}
+				document.getElementById('addr_input').focus();
 			}
 			else if(ctrl.data.games != undefined){
 				ctrl.setStatus('inlobby');
+				document.getElementById('lobby_input').focus();
 			}
 			else if(ctrl.data.gamedata != undefined){
 				ctrl.setStatus('ingame');
+				document.getElementById('game_input').focus();
 			}
 		};
 
@@ -67,6 +71,7 @@
 				ctrl.setData({"status":"connected"});
 				ctrl.setConnected(true);
 				ctrl.setErrMsg('');
+				document.getElementById('username_input').focus();
 			};
 			ctrl.ws.onmessage = function(evt){
 				ctrl.setData(JSON.parse(evt.data));
