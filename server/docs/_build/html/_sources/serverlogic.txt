@@ -11,10 +11,13 @@ Server functions
 .. automodule:: serverlogic.serverfuncts
    :members:
 
+.. automodule:: serverlogic.servercommands
+   :members:
+
 Game functions
 ----------------
 .. automodule:: serverlogic.gamefuncts
    :members:
 
-.. automodule:: serverlogic.gamelogic.game_rules
+.. automodule:: serverlogic.gamecommands
    :members:

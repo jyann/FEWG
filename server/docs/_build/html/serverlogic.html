@@ -149,12 +149,6 @@ Status changes to &#8216;logging_in&#8217; on success.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="serverlogic.serverfuncts.newGame">
-<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">newGame</tt><big>(</big><em>attr</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.newGame" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a new game from specified attributes.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="serverlogic.serverfuncts.quitGame">
 <tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">quitGame</tt><big>(</big><em>client</em>, <em>sendMsg=True</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.quitGame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attempt to quit game.
@@ -163,10 +157,52 @@ Response will contain lobby data (games) if successful.
 Status changes to &#8216;inlobby&#8217; on success.</p>
 </dd></dl>
 
+<span class="target" id="module-serverlogic.servercommands"></span><dl class="function">
+<dt id="serverlogic.servercommands.createGame">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">createGame</tt><big>(</big><em>client</em>, <em>gamename</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.createGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add game to server</p>
+</dd></dl>
+
 <dl class="function">
-<dt id="serverlogic.serverfuncts.resetPlayer">
-<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">resetPlayer</tt><big>(</big><em>player</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.resetPlayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reset player data to initial values.</p>
+<dt id="serverlogic.servercommands.joinGame">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">joinGame</tt><big>(</big><em>client</em>, <em>gamename</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.joinGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add client to game</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.servercommands.levelUp">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">levelUp</tt><big>(</big><em>client</em>, <em>statname</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.levelUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Level player stat</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.servercommands.login">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">login</tt><big>(</big><em>client</em>, <em>username</em>, <em>password</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log client in</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.servercommands.logout">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">logout</tt><big>(</big><em>client</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log client out</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.servercommands.newGame">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">newGame</tt><big>(</big><em>attr</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.newGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a new game from specified attributes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.servercommands.quitGame">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">quitGame</tt><big>(</big><em>client</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.quitGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove client from current game</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.servercommands.resetPlayer">
+<tt class="descclassname">serverlogic.servercommands.</tt><tt class="descname">resetPlayer</tt><big>(</big><em>player</em><big>)</big><a class="headerlink" href="#serverlogic.servercommands.resetPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset player data to initial values</p>
 </dd></dl>
 
 </div>
@@ -195,7 +231,45 @@ Response will contain lobby data (games) if successful.
 Status does not change on success.</p>
 </dd></dl>
 
-<span class="target" id="module-serverlogic.gamelogic.game_rules"></span></div>
+<span class="target" id="module-serverlogic.gamecommands"></span><dl class="function">
+<dt id="serverlogic.gamecommands.attack">
+<tt class="descclassname">serverlogic.gamecommands.</tt><tt class="descname">attack</tt><big>(</big><em>game</em>, <em>playerkey</em>, <em>targetkey</em><big>)</big><a class="headerlink" href="#serverlogic.gamecommands.attack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attack command</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.gamecommands.check_end_game">
+<tt class="descclassname">serverlogic.gamecommands.</tt><tt class="descname">check_end_game</tt><big>(</big><em>game</em><big>)</big><a class="headerlink" href="#serverlogic.gamecommands.check_end_game" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set winner if game over</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.gamecommands.defend">
+<tt class="descclassname">serverlogic.gamecommands.</tt><tt class="descname">defend</tt><big>(</big><em>game</em>, <em>playerkey</em>, <em>targetkey</em><big>)</big><a class="headerlink" href="#serverlogic.gamecommands.defend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defend command</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.gamecommands.extract_players">
+<tt class="descclassname">serverlogic.gamecommands.</tt><tt class="descname">extract_players</tt><big>(</big><em>game</em>, <em>playerkey</em>, <em>targetkey</em><big>)</big><a class="headerlink" href="#serverlogic.gamecommands.extract_players" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get references to player and target</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.gamecommands.incrementKillCount">
+<tt class="descclassname">serverlogic.gamecommands.</tt><tt class="descname">incrementKillCount</tt><big>(</big><em>game</em>, <em>player</em>, <em>targetkey</em><big>)</big><a class="headerlink" href="#serverlogic.gamecommands.incrementKillCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add experience to the player when the target
+is not already in the graveyard.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.gamecommands.subtract">
+<tt class="descclassname">serverlogic.gamecommands.</tt><tt class="descname">subtract</tt><big>(</big><em>value</em>, <em>varflow</em>, <em>player</em>, <em>target</em><big>)</big><a class="headerlink" href="#serverlogic.gamecommands.subtract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subtract value from vars in varflow.
+All vars will stay above 0.</p>
+</dd></dl>
+
+</div>
 </div>
 
 
