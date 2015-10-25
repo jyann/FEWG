@@ -1,4 +1,4 @@
-from serverfuncts import addStatusInfo
+from serverfuncts import sendResp, sendToGame
 import gamecommands
 
 def executeGameFunct(client, gameFunct, targetkey):
@@ -7,30 +7,15 @@ def executeGameFunct(client, gameFunct, targetkey):
 	Response will contain lobby data (games) if successful.
 	Status does not change on success."""
 	if client.gamekey == None:
-		# Send response to client
-		resp = {}
-		resp['err'] = 'You are not in a game'
-		addStatusInfo(client, resp)
-		client.sendMessage(client.factory.json_encoder.encode(resp))
+		sendResp(client, {'err':'You are not in a game'})
 	elif targetkey not in client.factory.games[client.gamekey]['players'].keys():
-		# Send response to client
-		resp = {}
-		resp['err'] = "Couldn't find that player in this game"
-		addStatusInfo(client, resp)
-		client.sendMessage(client.factory.json_encoder.encode(resp))
+		sendResp(client, {'err':"Couldn't find that player in this game"})
 	elif client.name in client.factory.games[client.gamekey]['graveyard']:
-		# Send response to client
-		resp = {}
-		resp['err'] = "You can't do that from the graveyard"
-		addStatusInfo(client, resp)
-		client.sendMessage(client.factory.json_encoder.encode(resp))
+		sendResp(client, {'err':"You can't do that from the graveyard"})
 	else:
 		gameFunct(client.factory.games[client.gamekey], client.name, targetkey)
-		# Send response to specified clients
-		clientlist = client.factory.games[client.gamekey]['players'].keys()
-		resp = {}
-		resp['gamedata'] = client.factory.games[client.gamekey]
-		client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
+
+		sendToGame(client, client.gamekey, {'gamedata':client.factory.games[client.gamekey]})
 
 def attack(client, targetkey):
 	"""Attempt to attack.

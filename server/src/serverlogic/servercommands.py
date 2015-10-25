@@ -13,6 +13,8 @@ def resetPlayer(player):
 	player['vars']['health'] = player['stats']['health']
 	player['vars']['defense'] = 0
 
+# Command functions:
+
 def login(client, username, password):
 	"""Log client in"""
 	# Set status
