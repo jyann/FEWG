@@ -32,7 +32,7 @@ src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 				<input type="submit" value="Login"/>
 			</form>
 			<br/>
-			<button ng-click="client.sendMsg('quit')">Disconnect</button>
+			<button ng-click="client.sendMsg('disconnect')">Disconnect</button>
 		</div>
 		<div ng-show="client.status == 'inlobby'">
 			<table><tr>
@@ -49,15 +49,15 @@ src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 			</form>
 			<br/>
 			<button ng-click="client.sendMsg('logout')">Logout</button>
-			<button ng-click="client.sendMsg('quit')">Disconnect</button>
+			<button ng-click="client.sendMsg('disconnect')">Disconnect</button>
 		</div>
 		<div ng-show="client.status == 'ingame'">
 			<table><tr>
 				<td ng-repeat="player in client.data.gamedata.players">
 					{{player.name}}<br/>
 					HP: {{player.vars.health}}/{{player.stats.health}}<br/>
-					DP: {{player.vars.defense}}
-					DEF: {{player.stats.defense}}<br/>
+					DP: {{player.vars.defense}}<br/>
+					DEF: {{player.stats.defense}}
 					ATK: {{player.stats.attack}}<br/>
 				</td>
 			</tr></table>
@@ -69,7 +69,7 @@ src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 			<br/>
 			<button ng-click="client.sendMsg('quit game')">Quit Game</button>
 			<button ng-click="client.sendMsg('logout')">Logout</button>
-			<button ng-click="client.sendMsg('quit')">Disconnect</button>
+			<button ng-click="client.sendMsg('disconnect')">Disconnect</button>
 		</div>
 		<div>Status: {{client.status}}</div>
 		<div>Data: {{client.data}}</div>

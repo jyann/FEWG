@@ -113,7 +113,7 @@
 		window.onbeforeunload = function(){
 			if(ctrl.connected){
 				// Let the server know before leaving
-				ctrl.sendMsg('quit');
+				ctrl.sendMsg('disconnect');
 				ctrl.ws.close();
 			}
 		};
