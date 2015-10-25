@@ -1,6 +1,6 @@
 import logging
 
-from storage import getPlayer
+import servercommands
 
 # Globals
 invalidNames = ['NONE']
@@ -11,11 +11,6 @@ def logMsg(msg):
 	"""Logs the specified message to std out and the file set my the logging config."""
 	print msg
 	logging.info(msg)
-
-def resetPlayer(player):
-	"""Reset player data to initial values."""
-	player['vars']['health'] = player['stats']['health']
-	player['vars']['defense'] = 0
 
 def gamesList(client):
 	"""Get list of all games on the server."""
@@ -28,6 +23,27 @@ def addStatusInfo(client, resp):
 	elif client.status == 'ingame':
 		resp['gamedata'] = client.factory.games[client.gamekey]
 
+def sendToLobby(client, resp):
+	# Send response to specified clients
+	clientlist = [k for k, v in client.factory.named_clients.items() if v.gamekey == None]
+	client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
+	# Log
+	logMsg('to: '+str(clientlist)+' - '+str(resp))
+
+def sendToGame(client, gamename, resp):
+	# Send response to specified clients
+	clientlist = client.factory.games[gamename]['players'].keys()
+	client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
+	# Log
+	logMsg('to: '+str(client.name)+' - '+str(resp))
+
+def sendResp(client, resp):
+	# Send response to client
+	addStatusInfo(client, resp)
+	client.sendMessage(client.factory.json_encoder.encode(resp))
+	# Log
+	logMsg('to: '+str(client.name)+' - '+str(resp))
+
 def login(client, username, password, sendMsg=True):
 	"""Attempt to log client in. 
 	Response will contain error response if failed.
@@ -36,64 +52,25 @@ def login(client, username, password, sendMsg=True):
 	if client.status != 'logging_in':
 		logMsg('Login failed: status != logging_in')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'You are already logged in'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'You are already logged in'})
 	elif client.name in client.factory.named_clients.keys():
 		logMsg('Login failed: client already logged in')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'You are already logged in'
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'You are already logged in'})
 	elif username in client.factory.named_clients.keys():
 		logMsg('Login failed: username conflict')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'That username is already in use'
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'That username is already in use'})
 	elif username in invalidNames:
 		logMsg('Login failed: name not valid')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'That username is not valid, try again'
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'That username is not valid, try again'})
 	else:
-		# Set status
-		client.status = 'inlobby'
-		# Log in client
-		client.name = username
-		client.playerdata = getPlayer(username)
-		client.factory.named_clients[username] = client
+		servercommands.login(client, username, password)
 		# Log
 		logMsg('Login successful: "'+username+'" logged in')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
-
-def newGame(attr):
-	"""Get a new game from specified attributes."""
-	game = {}
-	game['players'] = {}
-	game['graveyard'] = []
-	game['winner'] = 'NONE'
-	return game
+			sendResp(client, {})
 
 def createGame(client, gamename, sendMsg=True):
 	"""Attempt to create a game.
@@ -102,54 +79,25 @@ def createGame(client, gamename, sendMsg=True):
 	if client.name == None:
 		logMsg('Create game failed: user not logged in')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'You must be logged in to create a game'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'You must be logged in to create a game'})
 	elif client.status != 'inlobby':
 		logMsg('Create game failed: user not in lobby')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'Must be in lobby to create a game'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'Must be in lobby to create a game'})
 	elif gamename in client.factory.games.keys():
 		logMsg('Create game failed: game name conflict')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'That game already exists'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'That game already exists'})
 	elif len(client.factory.games) == client.factory.properties['game_limit']:
 		logMsg('Create game failed: game limit reached')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'Game limit reached, try again later or join another game'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'Game limit reached, try again later or join another game'})
 	else:
-		client.factory.games[gamename] = newGame(None)
+		servercommands.createGame(client, gamename)
+		# Log
 		logMsg('Create game successful: "'+gamename+'" created')
 		if sendMsg:
-			# Send response to specified clients
-			clientlist = [k for k, v in client.factory.named_clients.items() if v.gamekey == None]
-			resp = {}
-			addStatusInfo(client, resp)
-			client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(clientlist)+' - '+str(resp))
+			sendToLobby(client, {'games':gamesList(client)})
 
 def joinGame(client, gamename, sendMsg=True):
 	"""Attempt to add the client to the specified game.
@@ -159,49 +107,21 @@ def joinGame(client, gamename, sendMsg=True):
 	if client.name == None:
 		logMsg('Join game failed: client not logged in')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'You must be logged in to join a game'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'You must be logged in to join a game'})
 	elif client.gamekey != None:
 		logMsg('Join game failed: client already in game')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'You are already in a game'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'You are already in a game'})
 	elif gamename not in client.factory.games.keys():
 		logMsg('Join game failed: no such game')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'There is currently no game with that name'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'There is currently no game with that name'})
 	else:
-		# Set status
-		client.status = 'ingame'
-		# Add client to game
-		client.gamekey = gamename
-		client.factory.games[gamename]['players'][client.name] = client.playerdata
+		servercommands.joinGame(client, gamename)
 		# Log
 		logMsg('Join game successful: "'+client.name+'"added to "'+gamename+'"')
 		if sendMsg:
-			# Send response to specified clients
-			clientlist = client.factory.games[client.gamekey]['players'].keys()
-			resp = {}
-			addStatusInfo(client, resp)
-			client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendToGame(client, gamename, {'gamedata':client.factory.games[gamename]})
 
 def quitGame(client, sendMsg=True):
 	"""Attempt to quit game.
@@ -211,44 +131,17 @@ def quitGame(client, sendMsg=True):
 	if client.gamekey == None:
 		logMsg('Quit game failed: client not in game')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'You are not in a game yet'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':'You are not in a game yet'})
 	else:
-		# Set status
-		client.status = 'inlobby'
 		# Capture game name
 		gamename = client.gamekey
-		# Remove client from game
-		del client.factory.games[gamename]['players'][client.name]
-		if client.name in client.factory.games[gamename]['graveyard']:
-			client.factory.games[gamename]['graveyard'].remove(client.name)
-		if client.factory.games[gamename]['winner'] == client.name:
-			client.factory.games[gamename]['winner'] = 'NONE'
-		client.gamekey = None
-		# Reset player
-		resetPlayer(client.playerdata)
+
+		servercommands.quitGame(client)
 		# Log
 		logMsg('Quit game successful: "'+client.name+'" removed from "'+gamename+'"')
 		if sendMsg:
-			# Send response to specified clients
-			clientlist = client.factory.games[gamename]['players'].keys()
-			resp = {}
-			resp['gamedata'] = client.factory.games[gamename]
-			msg = client.factory.json_encoder.encode(resp)
-			client.factory.sendToClients(clientlist, msg)
-			# Log
-			logMsg('to: '+str(clientlist)+' - '+str(resp))
-			# Send response to client
-			resp = {}
-			resp['games'] = gamesList(client)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendToGame(client, gamename, {'gamedata':client.factory.games[gamename]})
+			sendResp(client, {})
 
 def levelup(client, statname, sendMsg=True):
 	"""Attempt to level up player.
@@ -258,48 +151,21 @@ def levelup(client, statname, sendMsg=True):
 	if client.playerdata == None:
 		logMsg('Level up failed: client not logged in')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = 'You must be logged in to level up'
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
-	if statname not in client.playerdata['stats'].keys():
+			sendResp(client, {'err':'You must be logged in to level up'})
+	elif statname not in client.playerdata['stats'].keys():
 		logMsg('Level up failed: no such stat')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = "Couldn't find that stat, try another again"
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
-	if client.playerdata['exp'] <= 0:
+			sendResp(client, {'err':"Couldn't find that stat, try another again"})
+	elif client.playerdata['exp'] <= 0:
 		logMsg('Level up failed: not enough exp')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = "You don't have enough XP, win some games first"
-			addStatusInfo(client, resp)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':"You don't have enough XP, win some games first"})
 	else:
-		# Set status
-		client.status = 'inlobby'
-		# Level player up
-		client.playerdata['stats'][statname] += 1
-		client.playerdata['exp'] -= 1
+		servercommands.levelUp(client, statname)
 		# Log
 		logMsg('Level up successful: "'+statname+'" increased by 1 for "'+client.name+'"')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['games'] = gamesList(client)
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {})
 
 def logout(client, sendMsg=True):
 	"""Attempt to log client out.
@@ -312,29 +178,16 @@ def logout(client, sendMsg=True):
 	if client.name == None:
 		logMsg('Logout failed: client not logged in')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['err'] = "You haven't logged in yet"
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'err':"You haven't logged in yet"})
 	else:
-		# Set status
-		client.status = 'logging_in'
 		# Capture username
-		usrname = client.name
-		# Log client out
-		del client.factory.named_clients[client.name]
-		client.name = None
+		username = client.name
+
+		servercommands.logout(client)
 		# Log
-		logMsg('Logout successful: "'+usrname+'" logged out')
+		logMsg('Logout successful: "'+username+'" logged out')
 		if sendMsg:
-			# Send response to client
-			resp = {}
-			resp['status'] = 'logged_out'
-			client.sendMessage(client.factory.json_encoder.encode(resp))
-			# Log
-			logMsg('to: '+str(client.name)+' - '+str(resp))
+			sendResp(client, {'status':'logged_out'})
 
 def closeConn(client):
 	"""Remove client data and close connection with client"""
