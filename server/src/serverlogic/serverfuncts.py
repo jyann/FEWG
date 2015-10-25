@@ -8,31 +8,31 @@ invalidNames = ['NONE']
 logging.basicConfig(level=logging.DEBUG, filename='server.log', format='%(asctime)s | %(message)s')
 
 def logMsg(msg):
-"""Logs the specified message to std out and the file set my the logging config."""
+	"""Logs the specified message to std out and the file set my the logging config."""
 	print msg
 	logging.info(msg)
 
 def resetPlayer(player):
-"""Reset player data to initial values."""
+	"""Reset player data to initial values."""
 	player['vars']['health'] = player['stats']['health']
 	player['vars']['defense'] = 0
 
 def gamesList(client):
-"""Get list of all games on the server."""
+	"""Get list of all games on the server."""
 	return [{'name':k,'player_count':len(v['players'])} for k, v in client.factory.games.items()]
 
 def addStatusInfo(client, resp):
-"""Add needed data based on client's status."""
+	"""Add needed data based on client's status."""
 	if client.status == 'inlobby':
 		resp['games'] = gamesList(client)
 	elif client.status == 'ingame':
 		resp['gamedata'] = client.factory.games[client.gamekey]
 
 def login(client, username, password, sendMsg=True):
-"""Attempt to log client in. 
-Response will contain error response if failed.
-Response will contain lobby data (games) if successful.
-Status changes to 'inlobby' on success."""
+	"""Attempt to log client in. 
+	Response will contain error response if failed.
+	Response will contain lobby data (games) if successful.
+	Status changes to 'inlobby' on success."""
 	if client.status != 'logging_in':
 		logMsg('Login failed: status != logging_in')
 		if sendMsg:
@@ -88,7 +88,7 @@ Status changes to 'inlobby' on success."""
 			logMsg('to: '+str(client.name)+' - '+str(resp))
 
 def newGame(attr):
-"""Get a new game from specified attributes."""
+	"""Get a new game from specified attributes."""
 	game = {}
 	game['players'] = {}
 	game['graveyard'] = []
@@ -96,9 +96,9 @@ def newGame(attr):
 	return game
 
 def createGame(client, gamename, sendMsg=True):
-"""Attempt to create a game.
-Response will contain an error message (err) if failed.
-Status does not change on success."""
+	"""Attempt to create a game.
+	Response will contain an error message (err) if failed.
+	Status does not change on success."""
 	if client.name == None:
 		logMsg('Create game failed: user not logged in')
 		if sendMsg:
@@ -129,7 +129,7 @@ Status does not change on success."""
 			client.sendMessage(client.factory.json_encoder.encode(resp))
 			# Log
 			logMsg('to: '+str(client.name)+' - '+str(resp))
-	elif len(client.factory.games) == client.factory.game_limit:
+	elif len(client.factory.games) == client.factory.properties['game_limit']:
 		logMsg('Create game failed: game limit reached')
 		if sendMsg:
 			# Send response to client
@@ -152,10 +152,10 @@ Status does not change on success."""
 			logMsg('to: '+str(clientlist)+' - '+str(resp))
 
 def joinGame(client, gamename, sendMsg=True):
-"""Attempt to add the client to the specified game.
-Response will contain error message (err) if failed.
-Response will contain game data (gamedata) if successful.
-Status changes to 'ingame' on success."""
+	"""Attempt to add the client to the specified game.
+	Response will contain error message (err) if failed.
+	Response will contain game data (gamedata) if successful.
+	Status changes to 'ingame' on success."""
 	if client.name == None:
 		logMsg('Join game failed: client not logged in')
 		if sendMsg:
@@ -204,10 +204,10 @@ Status changes to 'ingame' on success."""
 			logMsg('to: '+str(client.name)+' - '+str(resp))
 
 def quitGame(client, sendMsg=True):
-"""Attempt to quit game.
-Response will contain error message (err) if failed.
-Response will contain lobby data (games) if successful.
-Status changes to 'inlobby' on success."""
+	"""Attempt to quit game.
+	Response will contain error message (err) if failed.
+	Response will contain lobby data (games) if successful.
+	Status changes to 'inlobby' on success."""
 	if client.gamekey == None:
 		logMsg('Quit game failed: client not in game')
 		if sendMsg:
@@ -251,10 +251,10 @@ Status changes to 'inlobby' on success."""
 			logMsg('to: '+str(client.name)+' - '+str(resp))
 
 def levelup(client, statname, sendMsg=True):
-"""Attempt to level up player.
-Response will contain error message (err) if failed.
-Response will contain lobby data (games) if successful.
-Status changes to 'inlobby' on success."""
+	"""Attempt to level up player.
+	Response will contain error message (err) if failed.
+	Response will contain lobby data (games) if successful.
+	Status changes to 'inlobby' on success."""
 	if client.playerdata == None:
 		logMsg('Level up failed: client not logged in')
 		if sendMsg:
@@ -302,10 +302,10 @@ Status changes to 'inlobby' on success."""
 			logMsg('to: '+str(client.name)+' - '+str(resp))
 
 def logout(client, sendMsg=True):
-"""Attempt to log client out.
-Response will contain error message (err) if failed.
-Response will contain if status of 'logged_out' successful.
-Status changes to 'logging_in' on success."""
+	"""Attempt to log client out.
+	Response will contain error message (err) if failed.
+	Response will contain if status of 'logged_out' successful.
+	Status changes to 'logging_in' on success."""
 	# Clear game data
 	quitGame(client, False)
 
@@ -321,11 +321,13 @@ Status changes to 'logging_in' on success."""
 	else:
 		# Set status
 		client.status = 'logging_in'
+		# Capture username
+		usrname = client.name
 		# Log client out
 		del client.factory.named_clients[client.name]
 		client.name = None
 		# Log
-		logMsg('Logout successful: "'+client.name+'" logged out')
+		logMsg('Logout successful: "'+usrname+'" logged out')
 		if sendMsg:
 			# Send response to client
 			resp = {}
@@ -334,8 +336,8 @@ Status changes to 'logging_in' on success."""
 			# Log
 			logMsg('to: '+str(client.name)+' - '+str(resp))
 
-def closeConn(self):
-"""Remove client data and close connection with client"""
+def closeConn(client):
+	"""Remove client data and close connection with client"""
 	logMsg('Closing client connection')
 	# Clear client data
 	logout(client, False)

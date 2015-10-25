@@ -3,7 +3,7 @@ from os import path
 defaultProps = {'server_address':'localhost','server_port':'1234','client_limit':'10', 'game_limit':'5', 'max_player_limit':'10'}
 
 def writeProperties(filepath, data):
-"""Export server properties (data) to specified file (filepath)."""
+	"""Export server properties (data) to specified file (filepath)."""
 	# Form filedata string
 	filedata = ''
 	for k, v in data.items():
@@ -13,8 +13,8 @@ def writeProperties(filepath, data):
 	f.write(filedata)
 
 def readProperties(filepath):
-"""Read properties from specified file (filepath).
-Any required properties that are not specified are set to default values."""
+	"""Read properties from specified file (filepath).
+	Any required properties that are not specified are set to default values."""
 	# Get data from file
 	data = {}
 	if path.exists(filepath):
@@ -30,7 +30,7 @@ Any required properties that are not specified are set to default values."""
 	return data
 
 def getPlayer(name):
-"""Get user's player data"""
+	"""Get user's player data"""
 	player = {'name':name,'stats':{},'vars':{},'exp':0}
 
 	player['stats']['health'] = 10
@@ -44,5 +44,5 @@ def getPlayer(name):
 	return player
 
 def storePlayerData(name, data):
-"""Store user's player data"""
+	"""Store user's player data"""
 	pass

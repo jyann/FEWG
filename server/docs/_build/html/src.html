@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>FEWG Source Code &mdash; FEWG 0.0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FEWG 0.0.1.0 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">FEWG 0.0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-server">
+<span id="fewg-source-code"></span><h1>FEWG Source Code<a class="headerlink" href="#module-server" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="server.FEWGProtocol">
+<em class="property">class </em><tt class="descclassname">server.</tt><tt class="descname">FEWGProtocol</tt><big>(</big><em>users={}</em><big>)</big><a class="headerlink" href="#server.FEWGProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Websocket protocol for FEWG clients.</p>
+<dl class="method">
+<dt id="server.FEWGProtocol.onConnect">
+<tt class="descname">onConnect</tt><big>(</big><big>)</big><a class="headerlink" href="#server.FEWGProtocol.onConnect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded connect function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="server.FEWGProtocol.onHandshake">
+<tt class="descname">onHandshake</tt><big>(</big><em>header</em><big>)</big><a class="headerlink" href="#server.FEWGProtocol.onHandshake" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded handshake function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="server.FEWGProtocol.onMessage">
+<tt class="descname">onMessage</tt><big>(</big><em>raw_data</em><big>)</big><a class="headerlink" href="#server.FEWGProtocol.onMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloaded message function.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="server.FEWGServer">
+<em class="property">class </em><tt class="descclassname">server.</tt><tt class="descname">FEWGServer</tt><big>(</big><em>prop_path='server.properties'</em><big>)</big><a class="headerlink" href="#server.FEWGServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Server class</p>
+<dl class="method">
+<dt id="server.FEWGServer.onStop">
+<tt class="descname">onStop</tt><big>(</big><big>)</big><a class="headerlink" href="#server.FEWGServer.onStop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean up before the server stops.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="server.FEWGServer.start">
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#server.FEWGServer.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the server.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="server.FEWGServerFactory">
+<em class="property">class </em><tt class="descclassname">server.</tt><tt class="descname">FEWGServerFactory</tt><big>(</big><em>proto</em>, <em>props</em><big>)</big><a class="headerlink" href="#server.FEWGServerFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Websocket factory for FEWG server.</p>
+<dl class="method">
+<dt id="server.FEWGServerFactory.isFull">
+<tt class="descname">isFull</tt><big>(</big><big>)</big><a class="headerlink" href="#server.FEWGServerFactory.isFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if the number of clients has reached its limit.
+Client limit is a server property.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="server.FEWGServerFactory.sendToAll">
+<tt class="descname">sendToAll</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#server.FEWGServerFactory.sendToAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send to all connected clients.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="server.FEWGServerFactory.sendToClients">
+<tt class="descname">sendToClients</tt><big>(</big><em>clientnames</em>, <em>msg</em><big>)</big><a class="headerlink" href="#server.FEWGServerFactory.sendToClients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send to all specified logged in clients.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-serverlogic"></span></div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/src.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">FEWG 0.0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Jonathan Yannes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

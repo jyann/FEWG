@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Server Logic &mdash; FEWG 0.0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FEWG 0.0.1.0 documentation" href="index.html" />
+    <link rel="prev" title="Server" href="server.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="server.html" title="Server"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FEWG 0.0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="server-logic">
+<h1>Server Logic<a class="headerlink" href="#server-logic" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-serverlogic.storage">
+<span id="storage"></span><h2>Storage<a class="headerlink" href="#module-serverlogic.storage" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="serverlogic.storage.getPlayer">
+<tt class="descclassname">serverlogic.storage.</tt><tt class="descname">getPlayer</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#serverlogic.storage.getPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get user&#8217;s player data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.storage.readProperties">
+<tt class="descclassname">serverlogic.storage.</tt><tt class="descname">readProperties</tt><big>(</big><em>filepath</em><big>)</big><a class="headerlink" href="#serverlogic.storage.readProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read properties from specified file (filepath).
+Any required properties that are not specified are set to default values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.storage.storePlayerData">
+<tt class="descclassname">serverlogic.storage.</tt><tt class="descname">storePlayerData</tt><big>(</big><em>name</em>, <em>data</em><big>)</big><a class="headerlink" href="#serverlogic.storage.storePlayerData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store user&#8217;s player data</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.storage.writeProperties">
+<tt class="descclassname">serverlogic.storage.</tt><tt class="descname">writeProperties</tt><big>(</big><em>filepath</em>, <em>data</em><big>)</big><a class="headerlink" href="#serverlogic.storage.writeProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export server properties (data) to specified file (filepath).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-serverlogic.serverfuncts">
+<span id="server-functions"></span><h2>Server functions<a class="headerlink" href="#module-serverlogic.serverfuncts" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="serverlogic.serverfuncts.addStatusInfo">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">addStatusInfo</tt><big>(</big><em>client</em>, <em>resp</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.addStatusInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add needed data based on client&#8217;s status.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.closeConn">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">closeConn</tt><big>(</big><em>client</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.closeConn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove client data and close connection with client</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.createGame">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">createGame</tt><big>(</big><em>client</em>, <em>gamename</em>, <em>sendMsg=True</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.createGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to create a game.
+Response will contain an error message (err) if failed.
+Status does not change on success.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.gamesList">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">gamesList</tt><big>(</big><em>client</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.gamesList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of all games on the server.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.joinGame">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">joinGame</tt><big>(</big><em>client</em>, <em>gamename</em>, <em>sendMsg=True</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.joinGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to add the client to the specified game.
+Response will contain error message (err) if failed.
+Response will contain game data (gamedata) if successful.
+Status changes to &#8216;ingame&#8217; on success.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.levelup">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">levelup</tt><big>(</big><em>client</em>, <em>statname</em>, <em>sendMsg=True</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.levelup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to level up player.
+Response will contain error message (err) if failed.
+Response will contain lobby data (games) if successful.
+Status changes to &#8216;inlobby&#8217; on success.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.logMsg">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">logMsg</tt><big>(</big><em>msg</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.logMsg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs the specified message to std out and the file set my the logging config.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.login">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">login</tt><big>(</big><em>client</em>, <em>username</em>, <em>password</em>, <em>sendMsg=True</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to log client in. 
+Response will contain error response if failed.
+Response will contain lobby data (games) if successful.
+Status changes to &#8216;inlobby&#8217; on success.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.logout">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">logout</tt><big>(</big><em>client</em>, <em>sendMsg=True</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to log client out.
+Response will contain error message (err) if failed.
+Response will contain if status of &#8216;logged_out&#8217; successful.
+Status changes to &#8216;logging_in&#8217; on success.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.newGame">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">newGame</tt><big>(</big><em>attr</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.newGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a new game from specified attributes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.quitGame">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">quitGame</tt><big>(</big><em>client</em>, <em>sendMsg=True</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.quitGame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to quit game.
+Response will contain error message (err) if failed.
+Response will contain lobby data (games) if successful.
+Status changes to &#8216;inlobby&#8217; on success.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.serverfuncts.resetPlayer">
+<tt class="descclassname">serverlogic.serverfuncts.</tt><tt class="descname">resetPlayer</tt><big>(</big><em>player</em><big>)</big><a class="headerlink" href="#serverlogic.serverfuncts.resetPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset player data to initial values.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-serverlogic.gamefuncts">
+<span id="game-functions"></span><h2>Game functions<a class="headerlink" href="#module-serverlogic.gamefuncts" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="serverlogic.gamefuncts.attack">
+<tt class="descclassname">serverlogic.gamefuncts.</tt><tt class="descname">attack</tt><big>(</big><em>client</em>, <em>targetkey</em><big>)</big><a class="headerlink" href="#serverlogic.gamefuncts.attack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to attack.
+Calls executeGameFunct.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.gamefuncts.defend">
+<tt class="descclassname">serverlogic.gamefuncts.</tt><tt class="descname">defend</tt><big>(</big><em>client</em>, <em>targetkey</em><big>)</big><a class="headerlink" href="#serverlogic.gamefuncts.defend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to defend.
+Calls executeGameFunct.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="serverlogic.gamefuncts.executeGameFunct">
+<tt class="descclassname">serverlogic.gamefuncts.</tt><tt class="descname">executeGameFunct</tt><big>(</big><em>client</em>, <em>gameFunct</em>, <em>targetkey</em><big>)</big><a class="headerlink" href="#serverlogic.gamefuncts.executeGameFunct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to execute specified game function.
+Response will contain error response if failed.
+Response will contain lobby data (games) if successful.
+Status does not change on success.</p>
+</dd></dl>
+
+<span class="target" id="module-serverlogic.gamelogic.game_rules"></span></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Server Logic</a><ul>
+<li><a class="reference internal" href="#module-serverlogic.storage">Storage</a></li>
+<li><a class="reference internal" href="#module-serverlogic.serverfuncts">Server functions</a></li>
+<li><a class="reference internal" href="#module-serverlogic.gamefuncts">Game functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="server.html"
+                        title="previous chapter">Server</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/serverlogic.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="server.html" title="Server"
+             >previous</a> |</li>
+        <li><a href="index.html">FEWG 0.0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Jonathan Yannes.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

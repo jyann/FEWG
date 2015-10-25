@@ -6,15 +6,15 @@ from twisted.internet.protocol import ServerFactory
 from json import JSONDecoder, JSONEncoder
 
 class FEWGProtocol(Protocol):
-"""Websocket protocol for FEWG clients."""
+	"""Websocket protocol for FEWG clients."""
 	def onHandshake(self, header):
-	"""Overloaded handshake function."""
+		"""Overloaded handshake function."""
 		g = re.search('Origin\s*:\s*(\S+)', header)
 		if not g: return
 		print 'handshake successful'
 
 	def onConnect(self):
-	"""Overloaded connect function."""
+		"""Overloaded connect function."""
 		print 'connection made'
 		if self.factory.isFull():
 			# Send server full error message
@@ -33,12 +33,12 @@ class FEWGProtocol(Protocol):
 			self.playerdata = None
 
 	def onMessage(self, raw_data):
-	"""Overloaded message function."""
+		"""Overloaded message function."""
 		serverfuncts.logMsg('from: '+str(self.name) + " - " + raw_data)
 		# Parse message data
 		data = raw_data.split()
 		try:
-			if data[0] == 'quit' and len(data) == 1:
+			if data[0] == 'disconnect':
 				serverfuncts.closeConn(self)
 			elif data[0] == 'login':
 				serverfuncts.login(self, data[1], data[2])
@@ -80,9 +80,9 @@ class FEWGProtocol(Protocol):
 			print e
 
 class FEWGServerFactory(ServerFactory):
-"""Websocket factory for FEWG server."""
+	"""Websocket factory for FEWG server."""
 	def __init__(self, proto, props):
-	"""Overloaded constructor."""
+		"""Overloaded constructor."""
 		# Link protocol
 		self.protocol = proto
 		# Set properties
@@ -96,26 +96,26 @@ class FEWGServerFactory(ServerFactory):
 		self.json_encoder = JSONEncoder()
 
 	def isFull(self):
-	"""Determines if the number of clients has reached its limit.
-	Client limit is a server property."""
-		return len(self.clients) >= self.client_limit
+		"""Determines if the number of clients has reached its limit.
+		Client limit is a server property."""
+		return len(self.clients) >= int(self.properties['client_limit'])
 
 	def sendToAll(self, msg):
-	"""Send to all connected clients."""
+		"""Send to all connected clients."""
 		for c in self.clients:
 			c.sendMessage(msg)
 
 	def sendToClients(self, clientnames, msg):
-	"""Send to all specified logged in clients."""
+		"""Send to all specified logged in clients."""
 		for name in clientnames:
 			self.named_clients[name].sendMessage(msg)
 
 from twisted.internet import reactor
 
 class FEWGServer(object):
-"""Server class"""
+	"""Server class"""
 	def __init__(self, prop_path='server.properties'):
-	"""Constructor"""
+		"""Constructor"""
 		# Save properties to pass to factory and to write on shutdown
 		self.prop_path = prop_path
 		self.properties = storage.readProperties(self.prop_path)
@@ -126,10 +126,10 @@ class FEWGServer(object):
 		reactor.listenTCP(int(self.properties['server_port']), svrfactory)
 
 	def start(self):
-	"""Start the server."""
+		"""Start the server."""
 		reactor.run()
 
 	def onStop(self):
-	"""Clean up before the server stops."""
+		"""Clean up before the server stops."""
 		# Store current properties
 		storage.writeProperties(self.prop_path, self.properties)

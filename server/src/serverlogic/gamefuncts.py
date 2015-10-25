@@ -1,11 +1,11 @@
 from serverfuncts import addStatusInfo
-from gamelogic import game_rules
+import gamecommands
 
 def executeGameFunct(client, gameFunct, targetkey):
-"""Attempt to execute specified game function.
-Response will contain error response if failed.
-Response will contain lobby data (games) if successful.
-Status does not change on success."""
+	"""Attempt to execute specified game function.
+	Response will contain error response if failed.
+	Response will contain lobby data (games) if successful.
+	Status does not change on success."""
 	if client.gamekey == None:
 		# Send response to client
 		resp = {}
@@ -33,11 +33,11 @@ Status does not change on success."""
 		client.factory.sendToClients(clientlist, client.factory.json_encoder.encode(resp))
 
 def attack(client, targetkey):
-"""Attempt to attack.
-Calls executeGameFunct."""
-	executeGameFunct(client, game_rules.attack, targetkey)
+	"""Attempt to attack.
+	Calls executeGameFunct."""
+	executeGameFunct(client, gamecommands.attack, targetkey)
 
 def defend(client, targetkey):
-"""Attempt to defend.
-Calls executeGameFunct."""
-	executeGameFunct(client, game_rules.defend, targetkey)
+	"""Attempt to defend.
+	Calls executeGameFunct."""
+	executeGameFunct(client, gamecommands.defend, targetkey)
