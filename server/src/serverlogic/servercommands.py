@@ -1,8 +1,7 @@
 from storage import getPlayer
 
-def newGame(attr):
+def newGame(game):
 	"""Get a new game from specified attributes"""
-	game = {}
 	game['players'] = {}
 	game['graveyard'] = []
 	game['winner'] = 'NONE'
@@ -24,9 +23,9 @@ def login(client, username, password):
 	client.playerdata = getPlayer(username)
 	client.factory.named_clients[username] = client
 
-def createGame(client, gamename):
+def createGame(client, gamename, attributes):
 	"""Add game to server"""
-	client.factory.games[gamename] = newGame(None)
+	client.factory.games[gamename] = newGame({'playerlimit':2})
 
 def joinGame(client, gamename):
 	"""Add client to game"""
@@ -40,6 +39,9 @@ def quitGame(client):
 	"""Remove client from current game"""
 	# Set status
 	client.status = 'inlobby'
+	# Reset players
+	for ckey in client.factory.games[client.gamekey]['players'].keys():
+		resetPlayer(client.factory.named_clients[ckey].playerdata)
 	# Remove client from game
 	del client.factory.games[client.gamekey]['players'][client.name]
 	if client.name in client.factory.games[client.gamekey]['graveyard']:
@@ -47,8 +49,6 @@ def quitGame(client):
 	if client.factory.games[client.gamekey]['winner'] == client.name:
 		client.factory.games[client.gamekey]['winner'] = 'NONE'
 	client.gamekey = None
-	# Reset player
-	resetPlayer(client.playerdata)
 
 def levelUp(client, statname):
 	"""Level player stat"""

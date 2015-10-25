@@ -8,6 +8,8 @@ def executeGameFunct(client, gameFunct, targetkey):
 	Status does not change on success."""
 	if client.gamekey == None:
 		sendResp(client, {'err':'You are not in a game'})
+	elif len(client.factory.games[client.gamekey]['players']) != client.factory.games[client.gamekey]['playerlimit']:
+		sendResp(client, {'err':'The game is not ready yet'})
 	elif targetkey not in client.factory.games[client.gamekey]['players'].keys():
 		sendResp(client, {'err':"Couldn't find that player in this game"})
 	elif client.name in client.factory.games[client.gamekey]['graveyard']:
@@ -15,7 +17,7 @@ def executeGameFunct(client, gameFunct, targetkey):
 	else:
 		gameFunct(client.factory.games[client.gamekey], client.name, targetkey)
 
-		sendToGame(client, client.gamekey, {'gamedata':client.factory.games[client.gamekey]})
+		sendToGame(client, client.gamekey, {})
 
 def attack(client, targetkey):
 	"""Attempt to attack.
