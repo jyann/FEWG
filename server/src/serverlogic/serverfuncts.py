@@ -14,7 +14,7 @@ def logMsg(msg):
 
 def gamesList(client):
 	"""Get list of all games on the server."""
-	return [{'name':k,'player_count':len(v['players'])} for k, v in client.factory.games.items()]
+	return [{'name':k,'player_count':len(v['players']),'playerlimit':v['playerlimit']} for k, v in client.factory.games.items()]
 
 def addStatusInfo(client, resp):
 	"""Add needed data based on client's status."""

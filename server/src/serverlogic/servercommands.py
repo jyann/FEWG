@@ -25,7 +25,7 @@ def login(client, username, password):
 
 def createGame(client, gamename, attributes):
 	"""Add game to server"""
-	client.factory.games[gamename] = newGame({'playerlimit':2})
+	client.factory.games[gamename] = newGame({'playerlimit':2,'name':gamename})
 
 def joinGame(client, gamename):
 	"""Add client to game"""
