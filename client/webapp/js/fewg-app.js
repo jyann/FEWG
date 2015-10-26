@@ -4,27 +4,30 @@
 	app.controller('ClientCtrl', ['$rootScope', function($rootScope){
 		var ctrl = this;
 
-		this.server_addr = 'localhost'; // Default address
-		this.server_port = '1234'; // Default port
+		this.serverAddr = 'localhost'; // Default address
+		this.serverPort = '1234'; // Default port
 
-		this.data = {"status":"disconnected"};
-		this.status = 'connecting';
+		this.data = {};
+		this.status = 'Connecting';
 		this.connected = false;
-		this.err_msg = '';
+		this.clientlog = [];
 
 		this.clearInputs = function(){
 		// Clear inputs after submitting
 			ctrl.username = '';
 			ctrl.password = '';
-			ctrl.lobby_input = '';
-			ctrl.game_input = '';
+			ctrl.createGameInput = '';
+			ctrl.cmdInput = '';
 		};
 
-		this.setStatus = function(msg, foc_id){
+		this.setStatus = function(msg){
 			$rootScope.$apply(function(){
 				ctrl.status = msg;
 			});
-			document.getElementById(foc_id).focus();
+			if(msg == 'In lobby')
+				document.getElementById('cmdInput').focus();
+			if(msg == 'In game')
+				document.getElementById('cmdInput').focus();
 		};
 		this.setConnected = function(is_connected){
 			$rootScope.$apply(function(){
@@ -36,78 +39,70 @@
 				ctrl.data = msg;
 			});
 		};
-		this.setErrMsg = function(msg){
+		this.addToLog = function(type, msg){
 			$rootScope.$apply(function(){
-				ctrl.err_msg = msg;
+				ctrl.clientlog.push({'type':type,'msg':msg});
 			});
 		};
 
 		this.updateStatus = function(){
 		// Change status based on data
-			if(ctrl.data.status == 'logged_out'
-			|| ctrl.data.status == 'connected'){
+			if(ctrl.data.status == 'logged_out'){
 				// Move to logging_in state
-				ctrl.setStatus('logging_in','username_input');
-			}
-			else if(ctrl.data.status == 'disconnected'){
-				// Move to connecting state
-				if(ctrl.status == 'connecting')
-					ctrl.setErrMsg('Error connecting to game server');
-				else
-					ctrl.ws.close();
-				ctrl.setStatus('connecting','addr_input');
+				ctrl.setStatus('Logging in');
 			}
 			else if(ctrl.data.games != undefined){
 				// Move to lobby state
-				ctrl.setStatus('inlobby','lobby_input');
+				ctrl.setStatus('In lobby');
 			}
 			else if(ctrl.data.gamedata != undefined){
 				// Move to game state
-				ctrl.setStatus('ingame','game_input');
+				ctrl.setStatus('In game');
 			}
 		};
 
 		this.sendMsg = function(cmd){
 			ctrl.ws.send(cmd);
-		};
-		this.sendInput = function(){
-			if(ctrl.status == 'logging_in')
-				ctrl.sendMsg('login '+ctrl.username+' '+ctrl.password);
-			else if(ctrl.status == 'inlobby')
-				ctrl.sendMsg(ctrl.lobby_input);
-			else if(ctrl.status == 'ingame')
-				ctrl.sendMsg(ctrl.game_input);
 			ctrl.clearInputs();
 		};
 
 		this.openConn = function(){
 		// Init websocket
-			ctrl.ws = new WebSocket('ws://'+this.server_addr+':'+this.server_port);
+			ctrl.ws = new WebSocket('ws://'+ctrl.serverAddr+':'+ctrl.serverPort);
 			ctrl.ws.onopen = function(){
-				// Update data
-				ctrl.setData({"status":"connected"});
+				// Update status
+				ctrl.setStatus('Logging in');
 				ctrl.setConnected(true);
-				ctrl.setErrMsg('');
-				ctrl.updateStatus();
 			};
 			ctrl.ws.onmessage = function(evt){
 				// Update data
 				ctrl.setData(JSON.parse(evt.data));
-				if(ctrl.data.err != undefined)
-					// Check for error
-					ctrl.setErrMsg(ctrl.data.err);
-				else
-					// No error
-					ctrl.setErrMsg('');
+				if(ctrl.data.err != undefined) // Log errors
+					ctrl.addToLog('err', ctrl.data.err);
+				if(ctrl.data.svrmsg != undefined) // Log server messages
+					ctrl.addToLog('server-message', ctrl.data.svrmsg);
+				if(ctrl.data.chat != undefined) // Log chat messages
+					ctrl.addToLog('chat', ctrl.data.chat);
+				if(ctrl.data.whisper != undefined) // Log whispers
+					ctrl.addToLog('whisper', ctrl.data.whisper);
 				ctrl.updateStatus();
 			};
 			ctrl.ws.onclose = function(){
-				// Update data
-				ctrl.setData({"status":"disconnected"});
+				// Update status
+				if(ctrl.status == 'Connecting')
+					ctrl.addToLog('err','Error connecting to game server');
+				else
+					ctrl.ws.close();
+				ctrl.setStatus('Connecting');
 				ctrl.setConnected(false);
-				ctrl.setErrMsg('');
-				ctrl.updateStatus();
 			};
+		};
+
+		this.login = function(){
+			ctrl.sendMsg('login '+ctrl.username+' '+ctrl.password);
+		};
+		this.createGame = function(){
+			ctrl.sendMsg('create game '+ctrl.createGameInput);
 		};
 
 		window.onbeforeunload = function(){
