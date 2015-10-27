@@ -3,11 +3,30 @@
 <head>
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 
+<!--Include angularjs-->
 <script 
 src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 </script>
+<!--Include jquery-->
+<script
+src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+</script>
+<!--Include bootstrap-->
+<link rel="stylesheet" 
+href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script
+src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
+</script>
 
 <style>
+.login-form{
+	padding-top: 5%;
+	width: 50%;
+}
+.login-inputs{
+	width: 50%;
+	margin: 0 auto;
+}
 .err{
 	color: red;
 }
@@ -20,13 +39,15 @@ src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 .whisper{
 	color: gray;
 }
-.well{
-	background-color: #ddd;
-	padding: 10px;
+
+div.scroll{
+	overflow: scroll;
+	height: 75%;
 }
 #clientlog{
 	float: right;
 	width: 50%;
+	height: 100vh;
 }
 </style>
 <script src="js/fewg-app.js">
@@ -36,39 +57,54 @@ src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 <body ng-app="FEWGApp">
 	<div ng-controller="ClientCtrl as client">
 		<div id="clientlog" class="well">
-			<div>Status: {{client.status}}</div>
-			<div class="well">
-				<div>Log:</div>
+			Status: {{client.status}}<br/><hr/>
+			<p>Log:</p>
+			<div class="well scroll">
 				<div ng-repeat="logItem in client.clientlog" 
 				ng-class="{err:logItem.type == 'err'}">
 				{{logItem.msg}}</div>
 			</div>
 		</div>
-		<div ng-show="client.status == 'Connecting'">
-			<form ng-submit="client.openConn()">
-				<input id="addrInput" type="text" ng-model="client.serverAddr"/>
-				<input id="portInput" type="text" ng-model="client.serverPort"/>
-				<input type="submit" value="Connect"/>
-			</form>
+		<div ng-show="client.status == 'Connecting'"
+		class="login-form">
+			<div class="well login-inputs">
+				<form ng-submit="client.openConn()"
+				class="text-center">
+					<input id="addrInput" type="text" 
+					ng-model="client.serverAddr"/>
+					<br/>
+					<input id="portInput" type="text" 
+					ng-model="client.serverPort"/>
+					<br/>				
+					<input type="submit" value="Connect"/>
+				</form>
+			</div>
 		</div>
-		<div ng-show="client.status == 'Logging in'">
-			<form ng-submit="client.login()">
-				<input id="usernameInput" type="text"
-				ng-model="client.username"/>
-				<input id="passwordInput" type="password"
-				ng-model="client.password"/>
-				<input type="submit" value="Login"/>
-			</form>
-			<br/>
-			<button ng-click="client.sendMsg('disconnect')">Disconnect</button>
+		<div ng-show="client.status == 'Logging in'"
+		class="login-form">
+			<div class="well login-inputs">
+				<form ng-submit="client.login()"
+				class="text-center">
+					<input id="usernameInput" type="text"
+					ng-model="client.username"/><br/>
+					<input id="passwordInput" type="password"
+					ng-model="client.password"/><br/>
+					<input type="submit" value="Login"/>
+				</form>
+				<br/>
+				<button ng-click="client.sendMsg('disconnect')">
+				Disconnect</button>
+			</div>
 		</div>
 		<div ng-show="client.status == 'In lobby'">
 			<table><tr>
 				<td ng-repeat="game in client.data.games">
-					{{game.name}} <br/>
-					Players: {{game.player_count}}/{{game.playerlimit}} <br/>
-					<button ng-click="client.sendMsg('join game '+game.name)">
+					<div class="jumbotron well text-center">
+						<p>{{game.name}}</p>
+						Players: {{game.player_count}}/{{game.playerlimit}} <br/>
+						<button ng-click="client.sendMsg('join game '+game.name)">
 						Join</button>
+					</div>
 				</td>
 			</tr></table>
 			<form ng-submit="client.createGame()">
@@ -84,11 +120,13 @@ src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
 		<div ng-show="client.status == 'In game'">
 			<table><tr>
 				<td ng-repeat="player in client.data.gamedata.players">
-					{{player.name}}<br/>
+					<div class="jumbotron well text-center">
+					<p>{{player.name}}</p>
 					HP: {{player.vars.health}}/{{player.stats.health}}<br/>
 					DP: {{player.vars.defense}}<br/>
 					DEF: {{player.stats.defense}}
 					ATK: {{player.stats.attack}}<br/>
+					</div>
 				</td>
 			</tr></table>
 			<br/>

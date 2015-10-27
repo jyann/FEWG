@@ -73,6 +73,7 @@
 				// Update status
 				ctrl.setStatus('Logging in');
 				ctrl.setConnected(true);
+				ctrl.addToLog('','Connected to server');
 			};
 			ctrl.ws.onmessage = function(evt){
 				// Update data
@@ -89,12 +90,15 @@
 			};
 			ctrl.ws.onclose = function(){
 				// Update status
-				if(ctrl.status == 'Connecting')
+				if(ctrl.status == 'Connecting'){
 					ctrl.addToLog('err','Error connecting to game server');
-				else
+				}
+				else{
 					ctrl.ws.close();
-				ctrl.setStatus('Connecting');
-				ctrl.setConnected(false);
+					ctrl.setStatus('Connecting');
+					ctrl.setConnected(false);
+					ctrl.addToLog('','Disconnected from server');
+				}
 			};
 		};
 
