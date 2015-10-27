@@ -1,0 +1,5 @@
+- server chat
+	say [msg]
+	whisper [name] [msg]
+- send success messages from server for client log
+- bootstrap the client
