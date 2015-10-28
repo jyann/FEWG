@@ -1,5 +1,9 @@
+- create account
+	- store account/player data server-side
+	- create account form client-side
+- login
 - server chat
-	say [msg]
-	whisper [name] [msg]
+	chat [message]
+	chat whisper @[name1] @[name2]... @[nameN] [message]
 - send success messages from server for client log
 - bootstrap the client
