@@ -9,7 +9,13 @@ The client is written in Javascript using WebSockets (requires HTML5).
 
 ##1. Client
 
-The client is not yet functional. Check back later!
+In order to use the client, you must know the address 
+and port (default is 1234) of the server you plan to connect to.
+
+###1. The web app
+
+Simply open the client webapp in your web browser of choice.
+Note that your browser must support HTML5 websockets.
 
 ##2. Server
 
@@ -19,14 +25,12 @@ The client is not yet functional. Check back later!
 
 2. Make sure that pip is installed. If it is not, [install it.](https://pip.pypa.io/en/stable/installing/)
 
-3. Navigate to the server directory in the project root. If you'd like to use the included virtual environment, run:
-
-`source venv/bin/activate`
-
-Otherwise install the required modules by running the following commands:
+3. To install the required modules, navigate to the server directory in the project root and run:
 
 `pip install twisted`
-`pip install TwistedWebsocket`
+`pip install -r requirements.txt`
+
+Note that installing from requirements.txt may fail if twisted is not already installed.
 
 ###2. Running the Server
 
