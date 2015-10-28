@@ -2,4 +2,4 @@
 *.properties
 *.DS_Store
 *.log
-*/venv/*
+venv/
