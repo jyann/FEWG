@@ -24,9 +24,7 @@
 			$rootScope.$apply(function(){
 				ctrl.status = msg;
 			});
-			if(msg == 'In lobby')
-				document.getElementById('cmdInput').focus();
-			if(msg == 'In game')
+			if(msg == 'In lobby' || msg == 'In game')
 				document.getElementById('cmdInput').focus();
 		};
 		this.setConnected = function(is_connected){

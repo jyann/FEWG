@@ -139,8 +139,31 @@ div.scroll{
 				<input id="cmdInput" type="text" ng-model="client.cmdInput"
 				autocomplete="off"/>
 			</form>
+			<div ng-show="client.status == 'In lobby'" class="well">
+				<p>Commands:</p>
+				<code>create game [game name]</code>
+				- create game with specified name and attributes<br/>
+				<code>join game [game name]</code>
+				- join the specified game<br/>
+				<code>logout</code>
+				- logout and go back to login screen<br/>
+				<code>disconnect</code>
+				- disconnect from the server<br/>
+			</div>
+			<div ng-show="client.status == 'In game'" class="well">
+				<p>Commands:</p>
+				<code>attack [target player name]</code>
+				- attack the specified target player<br/>
+				<code>defend [target player name]</code>
+				- add to defense buffer<br/>
+				<code>quit game</code> - quit the game<br/>
+				<code>logout</code>
+				- logout and go back to login screen<br/>
+				<code>disconnect</code>
+				- disconnect from the server<br/>
+			</div>
 		</div>
-		<div>Data: {{client.data}}</div>
+		<!--p>Data: {{client.data}}</p-->
 	</div>
 </body>
 </html>
