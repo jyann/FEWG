@@ -19,6 +19,9 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 </script>
 
 <style>
+body{
+	padding: 10px;
+}
 .login-form{
 	padding-top: 5%;
 	width: 50%;
@@ -26,6 +29,11 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 .login-inputs{
 	width: 50%;
 	margin: 0 auto;
+}
+.form-table > tbody > tr > td{
+	padding-right: 15px;
+	padding-bottom: 5px;
+	text-align: left;
 }
 .err{
 	color: red;
@@ -40,14 +48,17 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 	color: gray;
 }
 
+.command-hints{
+	width: 45%;
+}
 div.scroll{
 	overflow: scroll;
-	height: 75%;
+	height: 55vh;
 }
 #clientlog{
 	float: right;
 	width: 50%;
-	height: 100vh;
+	height: 90vh;
 }
 </style>
 <script src="js/fewg-app.js">
@@ -70,12 +81,17 @@ div.scroll{
 			<div class="well login-inputs">
 				<form ng-submit="client.openConn()"
 				class="text-center">
-					<input id="addrInput" type="text" 
-					ng-model="client.serverAddr"/>
-					<br/>
-					<input id="portInput" type="text" 
-					ng-model="client.serverPort"/>
-					<br/>				
+					<table class="form-table"><tbody>
+						<tr>
+							<td>Address</td>
+							<td><input id="addrInput" type="text" 
+							ng-model="client.serverAddr"/></td>
+						</tr><tr>
+							<td>Port</td>
+							<td><input id="portInput" type="text" 
+							ng-model="client.serverPort"/></td>
+						</tr>
+					</tbody></table>
 					<input type="submit" value="Connect"/>
 				</form>
 			</div>
@@ -85,10 +101,17 @@ div.scroll{
 			<div class="well login-inputs">
 				<form ng-submit="client.login()"
 				class="text-center">
-					<input id="usernameInput" type="text"
-					ng-model="client.username"/><br/>
-					<input id="passwordInput" type="password"
-					ng-model="client.password"/><br/>
+					<table class="form-table"><tbody>
+						<tr>
+							<td>Username</td>
+							<td><input id="usernameInput" type="text"
+							ng-model="client.username"/></td>
+						</tr><tr>
+							<td>Password</td>
+							<td><input id="passwordInput" type="password"
+							ng-model="client.password"/></td>
+						</tr>
+					</tbody></table>
 					<input type="submit" value="Login"/>
 				</form>
 				<br/>
@@ -108,9 +131,9 @@ div.scroll{
 				</td>
 			</tr></table>
 			<form ng-submit="client.createGame()">
-				<p>Enter new game name:</p>
 				<input id="createGameInput" type="text" 
-				ng-model="client.createGameInput"/>
+				ng-model="client.createGameInput"
+				placeholder="Game Name"/>
 				<input type="submit" value="Create Game"/>
 			</form>
 			<br/>
@@ -139,7 +162,7 @@ div.scroll{
 				<input id="cmdInput" type="text" ng-model="client.cmdInput"
 				autocomplete="off"/>
 			</form>
-			<div ng-show="client.status == 'In lobby'" class="well">
+			<div ng-show="client.status == 'In lobby'" class="well command-hints">
 				<p>Commands:</p>
 				<code>create game [game name]</code>
 				- create game with specified name and attributes<br/>
@@ -150,7 +173,7 @@ div.scroll{
 				<code>disconnect</code>
 				- disconnect from the server<br/>
 			</div>
-			<div ng-show="client.status == 'In game'" class="well">
+			<div ng-show="client.status == 'In game'" class="well command-hints">
 				<p>Commands:</p>
 				<code>attack [target player name]</code>
 				- attack the specified target player<br/>
