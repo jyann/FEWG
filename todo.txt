@@ -1,7 +1,8 @@
+- countdown before game starts
 - create account
 	- store account/player data server-side
 	- create account form client-side
-- login
+- update login after implementing account creation
 - server chat
 	chat [message]
 	chat whisper @[name1] @[name2]... @[nameN] [message]
