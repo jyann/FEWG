@@ -72,7 +72,7 @@ div.scroll{
 			<p>Log:</p>
 			<div class="well scroll">
 				<div ng-repeat="logItem in client.clientlog" 
-				ng-class="{err:logItem.type == 'err'}">
+				ng-class="logItem.type">
 				{{logItem.msg}}</div>
 			</div>
 		</div>
