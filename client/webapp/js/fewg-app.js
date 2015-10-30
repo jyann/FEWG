@@ -71,15 +71,15 @@
 				// Update status
 				ctrl.setStatus('Logging in');
 				ctrl.setConnected(true);
-				ctrl.addToLog('','Connected to server');
+				ctrl.addToLog('log','Connected to server');
 			};
 			ctrl.ws.onmessage = function(evt){
 				// Update data
 				ctrl.setData(JSON.parse(evt.data));
 				if(ctrl.data.err != undefined) // Log errors
 					ctrl.addToLog('err', ctrl.data.err);
-				if(ctrl.data.svrmsg != undefined) // Log server messages
-					ctrl.addToLog('server-message', ctrl.data.svrmsg);
+				if(ctrl.data.message != undefined) // Log server messages
+					ctrl.addToLog('log', ctrl.data.message);
 				if(ctrl.data.chat != undefined) // Log chat messages
 					ctrl.addToLog('chat', ctrl.data.chat);
 				if(ctrl.data.whisper != undefined) // Log whispers
@@ -95,7 +95,7 @@
 					ctrl.ws.close();
 					ctrl.setStatus('Connecting');
 					ctrl.setConnected(false);
-					ctrl.addToLog('','Disconnected from server');
+					ctrl.addToLog('log','Disconnected from server');
 				}
 			};
 		};
