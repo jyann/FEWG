@@ -21,11 +21,13 @@
 		};
 
 		this.setStatus = function(msg){
-			$rootScope.$apply(function(){
-				ctrl.status = msg;
-			});
-			if(msg == 'In lobby' || msg == 'In game')
-				document.getElementById('cmdInput').focus();
+			if(ctrl.status != msg){
+				$rootScope.$apply(function(){
+					ctrl.status = msg;
+				});
+				if(msg == 'In lobby' || msg == 'In game')
+					document.getElementById('cmdInput').focus();
+			}
 		};
 		this.setConnected = function(is_connected){
 			$rootScope.$apply(function(){
