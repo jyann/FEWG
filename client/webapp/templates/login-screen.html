@@ -1,0 +1,20 @@
+<div class="well login-inputs">
+	<form ng-submit="loginCtrl.login()"
+	class="text-center">
+		<table class="form-table"><tbody>
+			<tr>
+				<td>Username</td>
+				<td><input id="usernameInput" type="text"
+				ng-model="loginCtrl.username"/></td>
+			</tr><tr>
+				<td>Password</td>
+				<td><input id="passwordInput" type="password"
+				ng-model="loginCtrl.password"/></td>
+			</tr>
+		</tbody></table>
+		<input type="submit" value="Login"/>
+	</form>
+	<br/>
+	<button ng-click="loginCtrl.disconnect()">
+	Disconnect</button>
+</div>

@@ -1,0 +1,18 @@
+<table><tr>
+	<td ng-repeat="player in gameCtrl.root.data.gamedata.players">
+		<div class="jumbotron well text-center">
+		<p>{{player.name}}</p>
+		HP: {{player.vars.health}}/{{player.stats.health}}<br/>
+		DP: {{player.vars.defense}}<br/>
+		DEF: {{player.stats.defense}}
+		ATK: {{player.stats.attack}}<br/>
+		</div>
+	</td>
+</tr></table>
+<br/>
+<button ng-click="gameCtrl.quitGame()">
+	Quit Game</button>
+<button ng-click="gameCtrl.logout()">
+	Logout</button>
+<button ng-click="gameCtrl.disconnect()">
+	Disconnect</button>

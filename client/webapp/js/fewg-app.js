@@ -1,118 +1,108 @@
 (function(){
-	var app = angular.module('FEWGApp', []);
+	var app = angular.module('FEWGApp', 
+		['LogModule', 
+		'ConnectModule', 
+		'LoginModule', 
+		'LobbyModule',
+		'GameModule',
+		'CommandModule']);
 
 	app.controller('ClientCtrl', ['$rootScope', function($rootScope){
 		var ctrl = this;
 
-		this.serverAddr = 'localhost'; // Default address
-		this.serverPort = '1234'; // Default port
+		ctrl.root = $rootScope;
 
-		this.data = {};
-		this.status = 'Connecting';
-		this.connected = false;
-		this.clientlog = [];
+		$rootScope.data = {};
+		ctrl.status = 'Connecting';
+		ctrl.connected = false;
 
-		this.clearInputs = function(){
-		// Clear inputs after submitting
-			ctrl.username = '';
-			ctrl.password = '';
-			ctrl.createGameInput = '';
-			ctrl.cmdInput = '';
+		ctrl.setData = function(msg){
+			$rootScope.$apply(function(){
+				$rootScope.data = msg;
+			});
 		};
-
-		this.setStatus = function(msg){
+		ctrl.setStatus = function(msg){
 			if(ctrl.status != msg){
 				$rootScope.$apply(function(){
 					ctrl.status = msg;
 				});
 				if(msg == 'In lobby' || msg == 'In game')
 					document.getElementById('cmdInput').focus();
+				if(msg == 'Logging in')
+					document.getElementById('usernameInput').focus();
 			}
 		};
-		this.setConnected = function(is_connected){
+		ctrl.setConnected = function(is_connected){
 			$rootScope.$apply(function(){
 				ctrl.connected = is_connected;
 			});
-		}
-		this.setData = function(msg){
-			$rootScope.$apply(function(){
-				ctrl.data = msg;
-			});
-		};
-		this.addToLog = function(type, msg){
-			$rootScope.$apply(function(){
-				ctrl.clientlog.push({'type':type,'msg':msg});
-			});
 		};
 
-		this.updateStatus = function(){
-		// Change status based on data
-			if(ctrl.data.status == 'logged_out'){
+		ctrl.updateStatus = function(){
+			// Change status based on data
+			if($rootScope.data.status == 'logged_out'){
 				// Move to logging_in state
 				ctrl.setStatus('Logging in');
 			}
-			else if(ctrl.data.games != undefined){
+			else if($rootScope.data.games != undefined){
 				// Move to lobby state
 				ctrl.setStatus('In lobby');
 			}
-			else if(ctrl.data.gamedata != undefined){
+			else if($rootScope.data.gamedata != undefined){
 				// Move to game state
 				ctrl.setStatus('In game');
 			}
 		};
 
-		this.sendMsg = function(cmd){
-			ctrl.ws.send(cmd);
-			ctrl.clearInputs();
-		};
-
-		this.openConn = function(){
-		// Init websocket
-			ctrl.ws = new WebSocket('ws://'+ctrl.serverAddr+':'+ctrl.serverPort);
+		ctrl.openConn = function(addr, port){
+			// Init websocket
+			ctrl.ws = new WebSocket('ws://'+addr+':'+port);
 			ctrl.ws.onopen = function(){
 				// Update status
 				ctrl.setStatus('Logging in');
 				ctrl.setConnected(true);
-				ctrl.addToLog('log','Connected to server');
+				$rootScope.addToLog('log','Connected to server');
 			};
 			ctrl.ws.onmessage = function(evt){
 				// Update data
 				ctrl.setData(JSON.parse(evt.data));
-				if(ctrl.data.err != undefined) // Log errors
-					ctrl.addToLog('err', ctrl.data.err);
-				if(ctrl.data.message != undefined) // Log server messages
-					ctrl.addToLog('log', ctrl.data.message);
-				if(ctrl.data.chat != undefined) // Log chat messages
-					ctrl.addToLog('chat', ctrl.data.chat);
-				if(ctrl.data.whisper != undefined) // Log whispers
-					ctrl.addToLog('whisper', ctrl.data.whisper);
+				if($rootScope.data.err != undefined) // Log errors
+					$rootScope.addToLog('err', $rootScope.data.err);
+				if($rootScope.data.message != undefined) // Log server messages
+					$rootScope.addToLog('log', $rootScope.data.message);
+				if($rootScope.data.chat != undefined) // Log chat messages
+					$rootScope.addToLog('chat', $rootScope.data.chat);
+				if($rootScope.data.whisper != undefined) // Log whispers
+					$rootScope.addToLog('whisper', $rootScope.data.whisper);
 				ctrl.updateStatus();
 			};
 			ctrl.ws.onclose = function(){
 				// Update status
 				if(ctrl.status == 'Connecting'){
-					ctrl.addToLog('err','Error connecting to game server');
+					$rootScope.addToLog('err',
+					'Error connecting to game server');
 				}
 				else{
 					ctrl.ws.close();
 					ctrl.setStatus('Connecting');
 					ctrl.setConnected(false);
-					ctrl.addToLog('log','Disconnected from server');
+					$rootScope.addToLog('log','Disconnected from server');
 				}
 			};
 		};
-
-		this.login = function(){
-			ctrl.sendMsg('login '+ctrl.username+' '+ctrl.password);
+		$rootScope.connect = function(addr, port){
+			// Wrapper for connect module
+			ctrl.openConn(addr, port);
 		};
-		this.createGame = function(){
-			ctrl.sendMsg('create game '+ctrl.createGameInput);
+
+		$rootScope.sendMsg = function(msg){
+			ctrl.ws.send(msg);
 		};
 
 		window.onbeforeunload = function(){
 			if(ctrl.connected){
 				// Let the server know before leaving
-				ctrl.sendMsg('disconnect');
+				$rootScope.sendMsg('disconnect');
 				ctrl.ws.close();
 			}
 		};

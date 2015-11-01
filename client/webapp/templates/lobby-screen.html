@@ -1,0 +1,23 @@
+<table><tr>
+	<td ng-repeat="game in lobbyCtrl.root.data.games">
+		<div class="jumbotron well text-center">
+			<p>{{game.name}}</p>
+			Players:
+			{{game.player_count}}/{{game.playerlimit}}<br/>
+			<button 
+			ng-click="lobbyCtrl.joinGame(game.name)">
+			Join</button>
+		</div>
+	</td>
+</tr></table>
+<form ng-submit="lobbyCtrl.createGame()">
+	<input id="createGameInput" type="text" 
+	ng-model="lobbyCtrl.createGameInput"
+	placeholder="Game Name"/>
+	<input type="submit" value="Create Game"/>
+</form>
+<br/>
+<button ng-click="lobbyCtrl.logout()">
+	Logout</button>
+<button ng-click="lobbyCtrl.disconnect()">
+	Disconnect</button>

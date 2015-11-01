@@ -1,0 +1,17 @@
+<div class="well login-inputs">
+	<form ng-submit="connectCtrl.connect()"
+	class="text-center">
+		<table class="form-table"><tbody>
+			<tr>
+				<td>Address</td>
+				<td><input id="addrInput" type="text" 
+				ng-model="connectCtrl.serverAddr"/></td>
+			</tr><tr>
+				<td>Port</td>
+				<td><input id="portInput" type="text" 
+				ng-model="connectCtrl.serverPort"/></td>
+			</tr>
+		</tbody></table>
+		<input type="submit" value="Connect"/>
+	</form>
+</div>

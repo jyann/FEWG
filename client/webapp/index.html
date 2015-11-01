@@ -61,130 +61,49 @@ div.scroll{
 	height: 90vh;
 }
 </style>
-<script src="js/fewg-app.js">
-</script>
+
+<script src="js/fewg-app.js"></script>
+<script src="js/log.js"></script>
+<script src="js/connect-screen.js"></script>
+<script src="js/login-screen.js"></script>
+<script src="js/lobby-screen.js"></script>
+<script src="js/game-screen.js"></script>
+<script src="js/command-form.js"></script>
 
 </head>
 <body ng-app="FEWGApp">
 	<div ng-controller="ClientCtrl as client">
 		<div id="clientlog" class="well">
-			Status: {{client.status}}<br/><hr/>
-			<p>Log:</p>
-			<div class="well scroll">
-				<div ng-repeat="logItem in client.clientlog" 
-				ng-class="logItem.type">
-				{{logItem.msg}}</div>
-			</div>
+		Status: {{client.status}}<br/><hr/>
+			<log></log>
 		</div>
 		<div ng-show="client.status == 'Connecting'"
 		class="login-form">
-			<div class="well login-inputs">
-				<form ng-submit="client.openConn()"
-				class="text-center">
-					<table class="form-table"><tbody>
-						<tr>
-							<td>Address</td>
-							<td><input id="addrInput" type="text" 
-							ng-model="client.serverAddr"/></td>
-						</tr><tr>
-							<td>Port</td>
-							<td><input id="portInput" type="text" 
-							ng-model="client.serverPort"/></td>
-						</tr>
-					</tbody></table>
-					<input type="submit" value="Connect"/>
-				</form>
-			</div>
+			<connect-screen></connect-screen>
 		</div>
 		<div ng-show="client.status == 'Logging in'"
 		class="login-form">
-			<div class="well login-inputs">
-				<form ng-submit="client.login()"
-				class="text-center">
-					<table class="form-table"><tbody>
-						<tr>
-							<td>Username</td>
-							<td><input id="usernameInput" type="text"
-							ng-model="client.username"/></td>
-						</tr><tr>
-							<td>Password</td>
-							<td><input id="passwordInput" type="password"
-							ng-model="client.password"/></td>
-						</tr>
-					</tbody></table>
-					<input type="submit" value="Login"/>
-				</form>
-				<br/>
-				<button ng-click="client.sendMsg('disconnect')">
-				Disconnect</button>
-			</div>
+			<login-screen></login-screen>
 		</div>
 		<div ng-show="client.status == 'In lobby'">
-			<table><tr>
-				<td ng-repeat="game in client.data.games">
-					<div class="jumbotron well text-center">
-						<p>{{game.name}}</p>
-						Players: {{game.player_count}}/{{game.playerlimit}} <br/>
-						<button ng-click="client.sendMsg('join game '+game.name)">
-						Join</button>
-					</div>
-				</td>
-			</tr></table>
-			<form ng-submit="client.createGame()">
-				<input id="createGameInput" type="text" 
-				ng-model="client.createGameInput"
-				placeholder="Game Name"/>
-				<input type="submit" value="Create Game"/>
-			</form>
-			<br/>
-			<button ng-click="client.sendMsg('logout')">Logout</button>
-			<button ng-click="client.sendMsg('disconnect')">Disconnect</button>
+			<lobby-screen></lobby-screen>
 		</div>
 		<div ng-show="client.status == 'In game'">
-			<table><tr>
-				<td ng-repeat="player in client.data.gamedata.players">
-					<div class="jumbotron well text-center">
-					<p>{{player.name}}</p>
-					HP: {{player.vars.health}}/{{player.stats.health}}<br/>
-					DP: {{player.vars.defense}}<br/>
-					DEF: {{player.stats.defense}}
-					ATK: {{player.stats.attack}}<br/>
-					</div>
-				</td>
-			</tr></table>
-			<br/>
-			<button ng-click="client.sendMsg('quit game')">Quit Game</button>
-			<button ng-click="client.sendMsg('logout')">Logout</button>
-			<button ng-click="client.sendMsg('disconnect')">Disconnect</button>
+			<game-screen></game-screen>
 		</div>
-		<div ng-hide="client.status == 'Connecting' || client.status == 'Logging in'">
-			<form ng-submit="client.sendMsg(client.cmdInput)">
-				<input id="cmdInput" type="text" ng-model="client.cmdInput"
-				autocomplete="off"/>
-			</form>
-			<div ng-show="client.status == 'In lobby'" class="well command-hints">
-				<p>Commands:</p>
-				<code>create game [game name]</code>
-				- create game with specified name and attributes<br/>
-				<code>join game [game name]</code>
-				- join the specified game<br/>
-				<code>logout</code>
-				- logout and go back to login screen<br/>
-				<code>disconnect</code>
-				- disconnect from the server<br/>
-			</div>
-			<div ng-show="client.status == 'In game'" class="well command-hints">
-				<p>Commands:</p>
-				<code>attack [target player name]</code>
-				- attack the specified target player<br/>
-				<code>defend [target player name]</code>
-				- add to defense buffer<br/>
-				<code>quit game</code> - quit the game<br/>
-				<code>logout</code>
-				- logout and go back to login screen<br/>
-				<code>disconnect</code>
-				- disconnect from the server<br/>
-			</div>
+		<div ng-hide="client.status == 'Connecting' 
+		|| client.status == 'Logging in'">
+			<command-form></command-form>
+		</div>
+		<div ng-show="client.status == 'In lobby'"
+		class="well command-hints">
+			<ng-include src="'templates/lobby-cmd-hints.html'">
+			</ng-include>
+		</div>
+		<div ng-show="client.status == 'In game'"
+		class="well command-hints">
+			<ng-include src="'templates/game-cmd-hints.html'">
+			</ng-include>
 		</div>
 		<!--p>Data: {{client.data}}</p-->
 	</div>
