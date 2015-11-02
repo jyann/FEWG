@@ -1,5 +1,5 @@
-<table><tr>
-	<td ng-repeat="game in lobbyCtrl.root.data.games">
+<ul class="list-inline">
+	<li ng-repeat="game in lobbyCtrl.root.data.games">
 		<div class="jumbotron well text-center">
 			<p>{{game.name}}</p>
 			Players:
@@ -8,8 +8,8 @@
 			ng-click="lobbyCtrl.joinGame(game.name)">
 			Join</button>
 		</div>
-	</td>
-</tr></table>
+	</li>
+</ul>
 <form ng-submit="lobbyCtrl.createGame()">
 	<input id="createGameInput" type="text" 
 	ng-model="lobbyCtrl.createGameInput"

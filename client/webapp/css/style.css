@@ -39,3 +39,7 @@ div.scroll{
 	width: 50%;
 	height: 90vh;
 }
+#cmdInput{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
