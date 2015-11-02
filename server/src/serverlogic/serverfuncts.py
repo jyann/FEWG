@@ -134,6 +134,11 @@ def joinGame(client, gamename, sendMsg=True):
 		if sendMsg:
 			sendResp(client, {'err':"""There is currently 
 								no game with that name"""})
+	elif (len(client.factory.games[gamename]['players'])
+			== int(client.factory.games[gamename]['playerlimit'])):
+		logMsg('Join game failed: game full')
+		if sendMsg:
+			sendResp(client, {'err':'That game is full'})
 	else:
 		servercommands.joinGame(client, gamename)
 		# Log
@@ -142,6 +147,7 @@ def joinGame(client, gamename, sendMsg=True):
 		if sendMsg:
 			sendToGame(client, gamename,
 						{'message':client.name+' joined the game'})
+			sendToLobby(client, {})
 
 def quitGame(client, sendMsg=True):
 	"""Attempt to quit game.
