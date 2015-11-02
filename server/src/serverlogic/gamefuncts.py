@@ -1,9 +1,9 @@
-from serverfuncts import sendResp, sendToLobby, sendToGame, quitGame
+from serverfuncts import sendResp, sendToLobby, sendToGame, quitGame, gamesList
 import gamecommands
 
 def endGame(client, gamename):
-	for k, v in client.factory.named_clients.items():
-		if k == gamename:
+	for v in client.factory.named_clients.values():
+		if v.gamekey == gamename:
 			quitGame(v, False)
 	del client.factory.games[gamename]
 
@@ -27,9 +27,9 @@ def executeGameFunct(client, gameFunct, targetkey):
 		sendToGame(client, client.gamekey, {'status':'In game'})
 	else:
 		sendToGame(client, client.gamekey,
-					{'status':'In lobby',
-						'winner':client.factory.games[client.gamekey]['winner']})
+				{'winner':client.factory.games[client.gamekey]['winner']})
 		endGame(client, client.gamekey)
+		sendToLobby(client, {})
 
 def attack(client, targetkey):
 	"""Attempt to attack.

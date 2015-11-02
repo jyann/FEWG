@@ -35,6 +35,7 @@ def sendToLobby(client, resp):
 	clientlist = [k for k, v 
 			in client.factory.named_clients.items() 
 			if v.gamekey == None]
+	resp['status'] = 'In lobby'
 	resp['games'] = gamesList(client)
 	client.factory.sendToClients(clientlist, 
 			client.factory.json_encoder.encode(resp))
@@ -44,6 +45,7 @@ def sendToLobby(client, resp):
 def sendToGame(client, gamename, resp):
 	# Send response to specified clients
 	clientlist = client.factory.games[gamename]['players'].keys()
+	resp['status'] = 'In game'
 	resp['gamedata'] = client.factory.games[gamename]
 	client.factory.sendToClients(clientlist, 
 			client.factory.json_encoder.encode(resp))
@@ -112,8 +114,7 @@ def createGame(client, gamename, sendMsg=True):
 		# Log
 		logMsg('Create game successful: "'+gamename+'" created')
 		if sendMsg:
-			sendToLobby(client, {'message':'Game '+gamename+' created',
-							'status':'In lobby'})
+			sendToLobby(client, {'message':'Game '+gamename+' created'})
 
 def joinGame(client, gamename, sendMsg=True):
 	"""Attempt to add the client to the specified game.
@@ -140,8 +141,7 @@ def joinGame(client, gamename, sendMsg=True):
 				+'"added to "'+gamename+'"')
 		if sendMsg:
 			sendToGame(client, gamename,
-						{'status':'In game',
-							'message':client.name+' joined the game'})
+						{'message':client.name+' joined the game'})
 
 def quitGame(client, sendMsg=True):
 	"""Attempt to quit game.
@@ -162,9 +162,8 @@ def quitGame(client, sendMsg=True):
 				+'" removed from "'+gamename+'"')
 		if sendMsg:
 			sendToGame(client, gamename, 
-				{'message':client.name+' left the game',
-				'status':'In game'})
-			sendToLobby(client, {'status':'In lobby'})
+				{'message':client.name+' left the game'})
+			sendToLobby(client, {})
 
 def levelup(client, statname, sendMsg=True):
 	"""Attempt to level up player.
