@@ -32,12 +32,14 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 <body ng-app="FEWGApp">
 	<div ng-controller="ClientCtrl as client">
 		<div id="clientlog" class="well">
+			<p ng-hide="client.isStatus('Connecting')
+					|| client.isStatus('Logging in')"
+				class="float-right">
+				Logged in as: {{client.root.username}}
+			</p>
+			Status: {{logCtrl.root.data.status}}<br/><hr/>
 			<log></log>
 		</div>
-		<p ng-hide="client.isStatus('Connecting')
-				|| client.isStatus('Logging in')">
-			Logged in as: {{client.root.username}}
-		</p>
 		<div ng-show="client.isStatus('Connecting')"
 		class="login-form">
 			<connect-screen></connect-screen>
@@ -66,7 +68,6 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 			<ng-include src="'templates/game-cmd-hints.html'">
 			</ng-include>
 		</div>
-		<!--p>Data: {{client.data}}</p-->
 	</div>
 </body>
 </html>

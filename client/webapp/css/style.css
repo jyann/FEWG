@@ -34,6 +34,9 @@ div.scroll{
 	overflow: scroll;
 	height: 55vh;
 }
+.float-right{
+	float: right;
+}
 #clientlog{
 	float: right;
 	width: 50%;
