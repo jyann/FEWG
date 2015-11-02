@@ -1,5 +1,3 @@
-- gameover message
-- remove game when finished
 - countdown before game starts
 - create account
 	- store account/player data server-side

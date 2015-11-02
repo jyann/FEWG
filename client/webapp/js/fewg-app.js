@@ -56,14 +56,22 @@
 				// Update data
 				ctrl.setData(JSON.parse(evt.data));
 				// Add any messages to log
-				if($rootScope.data.err != undefined) // Log errors
+				if($rootScope.data.err != undefined)
+					// Log errors
 					$rootScope.addToLog('err', $rootScope.data.err);
-				if($rootScope.data.message != undefined) // Log server messages
+				if($rootScope.data.message != undefined)
+					// Log server messages
 					$rootScope.addToLog('log', $rootScope.data.message);
-				if($rootScope.data.chat != undefined) // Log chat messages
+				if($rootScope.data.chat != undefined)
+					// Log chat messages
 					$rootScope.addToLog('chat', $rootScope.data.chat);
-				if($rootScope.data.whisper != undefined) // Log whispers
+				if($rootScope.data.whisper != undefined)
+					// Log whispers
 					$rootScope.addToLog('whisper', $rootScope.data.whisper);
+				if($rootScope.data.winner != undefined)
+					// Log gameover message
+					$rootScope.addToLog('log', 'Game over! '
+										+$rootScope.data.winner+' wins!');
 				// Give focus to apropriate input
 				ctrl.focusInput();
 			};
