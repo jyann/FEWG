@@ -7,3 +7,9 @@
 	chat [message]
 	chat whisper @[name1] @[name2]... @[nameN] [message]
 - send success messages from server for client log
+- add game options
+	create game [game name] [player limit] [pacing] [input format]
+	- player limit = number of players allowed in game 
+					(also number needed for game to start)
+	- pacing = tb(turn-based) or rt(real-time)
+	- input format = buttons or text
