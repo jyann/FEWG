@@ -9,8 +9,10 @@
 
 	app.controller('ClientCtrl', ['$rootScope', function($rootScope){
 		var ctrl = this;
+		ctrl.root = $rootScope;
 
 		$rootScope.data = {'status':'Connecting'};
+		$rootScope.username = '';
 		ctrl.lastStatus = '';
 		ctrl.connected = false;
 

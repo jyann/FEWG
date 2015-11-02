@@ -13,6 +13,9 @@
 				ctrl.login = function(){
 					$rootScope.sendMsg('login '+ctrl.username
 						+' '+ctrl.password);
+					// Set username
+					$rootScope.username = ctrl.username;
+					// Reset inputs
 					ctrl.username = '';
 					ctrl.password = '';
 				};

@@ -34,6 +34,10 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 		<div id="clientlog" class="well">
 			<log></log>
 		</div>
+		<p ng-hide="client.isStatus('Connecting')
+				|| client.isStatus('Logging in')">
+			Logged in as: {{client.root.username}}
+		</p>
 		<div ng-show="client.isStatus('Connecting')"
 		class="login-form">
 			<connect-screen></connect-screen>
@@ -49,7 +53,7 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 			<game-screen></game-screen>
 		</div>
 		<div ng-hide="client.isStatus('Connecting')
-		|| client.isStatus('Logging in')">
+				|| client.isStatus('Logging in')">
 			<command-form></command-form>
 		</div>
 		<div ng-show="client.isStatus('In lobby')"
