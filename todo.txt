@@ -7,4 +7,3 @@
 	chat [message]
 	chat whisper @[name1] @[name2]... @[nameN] [message]
 - send success messages from server for client log
-- bootstrap the client
