@@ -6,6 +6,8 @@
 			templateUrl: 'templates/log.html',
 			controller: ['$rootScope', function($rootScope){
 				var ctrl = this;
+				ctrl.root = $rootScope;
+
 				ctrl.clientlog = [];
 
 				$rootScope.addToLog = function(type, msg){

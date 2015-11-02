@@ -32,33 +32,32 @@ src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
 <body ng-app="FEWGApp">
 	<div ng-controller="ClientCtrl as client">
 		<div id="clientlog" class="well">
-		Status: {{client.status}}<br/><hr/>
 			<log></log>
 		</div>
-		<div ng-show="client.status == 'Connecting'"
+		<div ng-show="client.isStatus('Connecting')"
 		class="login-form">
 			<connect-screen></connect-screen>
 		</div>
-		<div ng-show="client.status == 'Logging in'"
+		<div ng-show="client.isStatus('Logging in')"
 		class="login-form">
 			<login-screen></login-screen>
 		</div>
-		<div ng-show="client.status == 'In lobby'">
+		<div ng-show="client.isStatus('In lobby')">
 			<lobby-screen></lobby-screen>
 		</div>
-		<div ng-show="client.status == 'In game'">
+		<div ng-show="client.isStatus('In game')">
 			<game-screen></game-screen>
 		</div>
-		<div ng-hide="client.status == 'Connecting' 
-		|| client.status == 'Logging in'">
+		<div ng-hide="client.isStatus('Connecting')
+		|| client.isStatus('Logging in')">
 			<command-form></command-form>
 		</div>
-		<div ng-show="client.status == 'In lobby'"
+		<div ng-show="client.isStatus('In lobby')"
 		class="well command-hints">
 			<ng-include src="'templates/lobby-cmd-hints.html'">
 			</ng-include>
 		</div>
-		<div ng-show="client.status == 'In game'"
+		<div ng-show="client.isStatus('In game')"
 		class="well command-hints">
 			<ng-include src="'templates/game-cmd-hints.html'">
 			</ng-include>

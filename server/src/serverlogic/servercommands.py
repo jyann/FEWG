@@ -17,7 +17,7 @@ def resetPlayer(player):
 def login(client, username, password):
 	"""Log client in"""
 	# Set status
-	client.status = 'inlobby'
+	client.status = 'In lobby'
 	# Log in client
 	client.name = username
 	client.playerdata = getPlayer(username)
@@ -30,7 +30,7 @@ def createGame(client, gamename, attributes):
 def joinGame(client, gamename):
 	"""Add client to game"""
 	# Set status
-	client.status = 'ingame'
+	client.status = 'In game'
 	# Add client to game
 	client.gamekey = gamename
 	client.factory.games[gamename]['players'][client.name] = client.playerdata
@@ -38,7 +38,7 @@ def joinGame(client, gamename):
 def quitGame(client):
 	"""Remove client from current game"""
 	# Set status
-	client.status = 'inlobby'
+	client.status = 'In lobby'
 	# Reset players
 	for ckey in client.factory.games[client.gamekey]['players'].keys():
 		resetPlayer(client.factory.named_clients[ckey].playerdata)
@@ -53,7 +53,7 @@ def quitGame(client):
 def levelUp(client, statname):
 	"""Level player stat"""
 	# Set status
-	client.status = 'inlobby'
+	client.status = 'In lobby'
 	# Level player up
 	client.playerdata['stats'][statname] += 1
 	client.playerdata['exp'] -= 1
@@ -61,7 +61,7 @@ def levelUp(client, statname):
 def logout(client):
 	"""Log client out"""
 	# Set status
-	client.status = 'logging_in'
+	client.status = 'Logging in'
 	# Log client out
 	del client.factory.named_clients[client.name]
 	client.name = None

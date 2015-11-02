@@ -24,9 +24,10 @@ def gamesList(client):
 
 def addStatusInfo(client, resp):
 	"""Add needed data based on client's status."""
-	if client.status == 'inlobby':
+	resp['status'] = client.status
+	if client.status == 'In lobby':
 		resp['games'] = gamesList(client)
-	elif client.status == 'ingame':
+	elif client.status == 'In game':
 		resp['gamedata'] = client.factory.games[client.gamekey]
 
 def sendToLobby(client, resp):
@@ -35,6 +36,7 @@ def sendToLobby(client, resp):
 			in client.factory.named_clients.items() 
 			if v.gamekey == None]
 	resp['games'] = gamesList(client)
+	resp['status'] = 'In lobby'
 	client.factory.sendToClients(clientlist, 
 			client.factory.json_encoder.encode(resp))
 	# Log
@@ -44,6 +46,7 @@ def sendToGame(client, gamename, resp):
 	# Send response to specified clients
 	clientlist = client.factory.games[gamename]['players'].keys()
 	resp['gamedata'] = client.factory.games[gamename]
+	resp['status'] = 'In game'
 	client.factory.sendToClients(clientlist, 
 			client.factory.json_encoder.encode(resp))
 	# Log
@@ -61,8 +64,8 @@ def login(client, username, password, sendMsg=True):
 	Response will contain error response if failed.
 	Response will contain lobby data (games) if successful.
 	Status changes to 'inlobby' on success."""
-	if client.status != 'logging_in':
-		logMsg('Login failed: status != logging_in')
+	if client.status != 'Logging in':
+		logMsg('Login failed: status != "Logging in"')
 		if sendMsg:
 			sendResp(client, {'err':'You are already logged in'})
 	elif client.name in client.factory.named_clients.keys():
@@ -92,7 +95,7 @@ def createGame(client, gamename, sendMsg=True):
 		logMsg('Create game failed: user not logged in')
 		if sendMsg:
 			sendResp(client, {'err':'You must be logged in to create a game'})
-	elif client.status != 'inlobby':
+	elif client.status != 'In lobby':
 		logMsg('Create game failed: user not in lobby')
 		if sendMsg:
 			sendResp(client, {'err':'Must be in lobby to create a game'})
@@ -209,7 +212,7 @@ def logout(client, sendMsg=True):
 		# Log
 		logMsg('Logout successful: "'+username+'" logged out')
 		if sendMsg:
-			sendResp(client, {'status':'logged_out',
+			sendResp(client, {'status':'Logging in',
 							'message':'Logged out'})
 
 def closeConn(client):

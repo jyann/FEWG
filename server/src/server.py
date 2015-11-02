@@ -27,10 +27,14 @@ class FEWGProtocol(Protocol):
 			# Add client to server
 			self.factory.clients.append(self)
 			# Init client attributes
-			self.status = 'logging_in'
+			self.status = 'Logging in'
 			self.name = None
 			self.gamekey = None
 			self.playerdata = None
+
+			resp = {}
+			serverfuncts.addStatusInfo(self, resp)
+			self.sendMessage(self.factory.json_encoder.encode(resp))
 
 	def onMessage(self, raw_data):
 		"""Overloaded message function."""
