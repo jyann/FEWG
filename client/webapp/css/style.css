@@ -1,0 +1,41 @@
+body{
+	padding: 10px;
+}
+.login-form{
+	padding-top: 5%;
+	width: 50%;
+}
+.login-inputs{
+	width: 50%;
+	margin: 0 auto;
+}
+.form-table > tbody > tr > td{
+	padding-right: 15px;
+	padding-bottom: 5px;
+	text-align: left;
+}
+.err{
+	color: red;
+}
+.log{
+	color: black;
+}
+.chat{
+	color: green;
+}
+.whisper{
+	color: gray;
+}
+
+.command-hints{
+	width: 45%;
+}
+div.scroll{
+	overflow: scroll;
+	height: 55vh;
+}
+#clientlog{
+	float: right;
+	width: 50%;
+	height: 90vh;
+}
