@@ -6,6 +6,7 @@
 			templateUrl: 'templates/command-form.html',
 			controller: ['$rootScope', function($rootScope){
 				var ctrl = this;
+				ctrl.root = $rootScope;
 
 				ctrl.cmdInput = '';
 

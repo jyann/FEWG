@@ -7,7 +7,8 @@
 		'GameModule',
 		'CommandModule']);
 
-	app.controller('ClientCtrl', ['$rootScope', function($rootScope){
+	app.controller('ClientCtrl', ['$rootScope','$timeout',
+	function($rootScope, $timeout){
 		var ctrl = this;
 		ctrl.root = $rootScope;
 
@@ -15,6 +16,7 @@
 		$rootScope.username = '';
 		ctrl.lastStatus = '';
 		ctrl.connected = false;
+		ctrl.gamerunning = false;
 
 		ctrl.setData = function(msg){
 			// Set data
@@ -27,6 +29,12 @@
 			// Set connected variable
 			$rootScope.$apply(function(){
 				ctrl.connected = is_connected;
+			});
+		};
+		ctrl.setGameRunning = function(running){
+			// Set connected variable
+			$rootScope.$apply(function(){
+				ctrl.gamerunning = running;
 			});
 		};
 		ctrl.focusInput = function(){
@@ -42,6 +50,22 @@
 		ctrl.isStatus = function(status){
 			// Check status
 			return $rootScope.data.status == status;
+		};
+		ctrl.setCountdown = function(count){
+			$rootScope.$apply(function(){
+				$rootScope.data.countdown = count;
+			});
+			$rootScope.addToLog('log',count);
+		};
+		ctrl.countdown = function(){
+			ctrl.setCountdown('3');
+			$timeout(function(){ctrl.setCountdown('2');}, 1000, false);
+			$timeout(function(){ctrl.setCountdown('1');}, 2000, false);
+			$timeout(function(){ctrl.setCountdown('Go!');}, 3000, false);
+			$timeout(function(){
+				ctrl.setCountdown(undefined);
+				ctrl.focusInput()
+			}, 4000, false);
 		};
 
 		ctrl.openConn = function(addr, port){
@@ -72,6 +96,20 @@
 					// Log gameover message
 					$rootScope.addToLog('log', 'Game over! '
 										+$rootScope.data.winner+' wins!');
+				// Check start game
+				if(ctrl.isStatus('In game')){
+					if(Object.keys($rootScope.data.gamedata.players).length 
+					== $rootScope.data.gamedata.playerlimit){
+						if(!ctrl.gamerunning){
+							ctrl.countdown();
+							ctrl.setGameRunning(true);
+						}
+					}
+					else
+						ctrl.setGameRunning(false);
+				}
+				else
+					ctrl.setGameRunning(false);
 				// Give focus to apropriate input
 				ctrl.focusInput();
 			};

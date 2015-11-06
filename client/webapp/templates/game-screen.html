@@ -1,18 +1,24 @@
-<ul class="list-inline">
-	<li ng-repeat="player in gameCtrl.root.data.gamedata.players">
-		<div class="jumbotron well text-center">
-		<p>{{player.name}}</p>
-		HP: {{player.vars.health}}/{{player.stats.health}}<br/>
-		DP: {{player.vars.defense}}<br/>
-		DEF: {{player.stats.defense}}
-		ATK: {{player.stats.attack}}<br/>
-		</div>
-	</li>
-</ul>
-<br/>
-<button ng-click="gameCtrl.quitGame()">
+<div ng-show="gameCtrl.root.data.countdown == undefined">
+	<ul class="list-inline">
+		<li ng-repeat="player in gameCtrl.root.data.gamedata.players">
+			<div class="jumbotron well text-center">
+			<p>{{player.name}}</p>
+			HP: {{player.vars.health}}/{{player.stats.health}}<br/>
+			DP: {{player.vars.defense}}<br/>
+			DEF: {{player.stats.defense}}
+			ATK: {{player.stats.attack}}<br/>
+			</div>
+		</li>
+	</ul>
+	<br/>
+	<button ng-click="gameCtrl.quitGame()">
 	Quit Game</button>
-<button ng-click="gameCtrl.logout()">
+	<button ng-click="gameCtrl.logout()">
 	Logout</button>
-<button ng-click="gameCtrl.disconnect()">
+	<button ng-click="gameCtrl.disconnect()">
 	Disconnect</button>
+</div>
+<div ng-hide="gameCtrl.root.data.countdown == undefined"
+class="text-center">
+	<h1>{{gameCtrl.root.data.countdown}}</h1>
+</div>
