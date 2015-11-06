@@ -1,4 +1,3 @@
-- countdown before game starts
 - create account
 	- store account/player data server-side
 	- create account form client-side
