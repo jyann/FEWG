@@ -22,6 +22,10 @@
 				ctrl.disconnect = function(){
 					$rootScope.sendMsg('disconnect');
 				};
+				ctrl.createUser = function(){
+					$rootScope.sendMsg('create user '+ctrl.username
+						+' '+ctrl.password);
+				};
 			}],
 			controllerAs: 'loginCtrl'
 		};

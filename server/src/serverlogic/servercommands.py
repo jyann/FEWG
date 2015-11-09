@@ -1,4 +1,4 @@
-from storage import getPlayer
+from storage import getPlayers, getPlayer, storePlayerData
 
 def newGame(game):
 	"""Get a new game from specified attributes"""
@@ -7,6 +7,20 @@ def newGame(game):
 	game['winner'] = 'NONE'
 	return game
 
+def newPlayer(name, password):
+	"""Create player dict"""
+	player = {'name':name,'password':password,'stats':{},'vars':{},'exp':0}
+
+	player['stats']['health'] = 10
+	player['vars']['health'] = 10
+
+	player['stats']['attack'] = 1
+	
+	player['stats']['defense'] = 1
+	player['vars']['defense'] = 0
+
+	return player
+
 def resetPlayer(player):
 	"""Reset player data to initial values"""
 	player['vars']['health'] = player['stats']['health']
@@ -14,14 +28,32 @@ def resetPlayer(player):
 
 # Command functions:
 
+def createUser(client, username, password):
+	"""Creates a user and stores the player data"""
+	path = client.factory.prop_path+'/players.json'
+	if username not in getPlayers(path, client.factory.json_decoder):
+		storePlayerData(path, username,
+					newPlayer(username, password),
+					client.factory.json_encoder,
+					client.factory.json_decoder)
+		return True
+	else:
+		return False
+
 def login(client, username, password):
 	"""Log client in"""
-	# Set status
-	client.status = 'In lobby'
-	# Log in client
-	client.name = username
-	client.playerdata = getPlayer(username)
-	client.factory.named_clients[username] = client
+	path = client.factory.prop_path+'/players.json'
+	player = getPlayer(path, username, client.factory.json_decoder)
+	if player != False and player['password'] == password:
+		# Set status
+		client.status = 'In lobby'
+		# Log in client
+		client.name = username
+		client.playerdata = player	
+		client.factory.named_clients[username] = client
+		return True
+	else:
+		return False
 
 def createGame(client, gamename, attributes):
 	"""Add game to server"""
@@ -57,6 +89,12 @@ def levelUp(client, statname):
 	# Level player up
 	client.playerdata['stats'][statname] += 1
 	client.playerdata['exp'] -= 1
+	# Store updated player data
+	path = client.factory.prop_path+'/players.json'
+	storePlayerData(path, username,
+				client.playerdata,
+				client.factory.json_encoder,
+				client.factory.json_decoder)
 
 def logout(client):
 	"""Log client out"""

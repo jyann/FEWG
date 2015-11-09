@@ -1,3 +1,6 @@
-from src import server
+import os.path
+path = os.path.dirname(__file__)
+if path == '': path = '.'
 
-server.FEWGServer().start()
+from src import server
+server.FEWGServer(path).start()

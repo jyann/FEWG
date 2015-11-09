@@ -44,6 +44,8 @@ class FEWGProtocol(Protocol):
 		try:
 			if data[0] == 'disconnect':
 				serverfuncts.closeConn(self)
+			elif data[0] == 'create' and data[1] == 'user':
+				serverfuncts.createUser(self, data)
 			elif data[0] == 'login':
 				serverfuncts.login(self, data[1], data[2])
 			elif data[0] == 'logout':
@@ -85,12 +87,14 @@ class FEWGProtocol(Protocol):
 
 class FEWGServerFactory(ServerFactory):
 	"""Websocket factory for FEWG server."""
-	def __init__(self, proto, props):
+	def __init__(self, proto, props, prop_path):
 		"""Overloaded constructor."""
 		# Link protocol
 		self.protocol = proto
 		# Set properties
 		self.properties = props
+		# Set properties
+		self.prop_path = prop_path
 		# Init server data
 		self.clients = []
 		self.named_clients = {}
@@ -118,15 +122,18 @@ from twisted.internet import reactor
 
 class FEWGServer(object):
 	"""Server class"""
-	def __init__(self, prop_path='server.properties'):
+	def __init__(self, prop_path='.'):
 		"""Constructor"""
 		# Save properties to pass to factory and to write on shutdown
 		self.prop_path = prop_path
-		self.properties = storage.readProperties(self.prop_path)
+		self.properties = storage.readProperties(self.prop_path
+							+'/server.properties')
 		# Set onstop trigger
 		reactor.addSystemEventTrigger('before', 'shutdown', self.onStop)
 		# Set up server
-		svrfactory = FEWGServerFactory(FEWGProtocol, self.properties)
+		svrfactory = FEWGServerFactory(FEWGProtocol,
+						self.properties,
+						self.prop_path)
 		reactor.listenTCP(int(self.properties['server_port']), svrfactory)
 
 	def start(self):
@@ -136,4 +143,5 @@ class FEWGServer(object):
 	def onStop(self):
 		"""Clean up before the server stops."""
 		# Store current properties
-		storage.writeProperties(self.prop_path, self.properties)
+		storage.writeProperties(self.prop_path+'/server.properties',
+			self.properties)

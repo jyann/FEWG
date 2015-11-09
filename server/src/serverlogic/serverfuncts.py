@@ -31,7 +31,7 @@ def addStatusInfo(client, resp):
 		resp['gamedata'] = client.factory.games[client.gamekey]
 
 def sendToLobby(client, resp):
-	# Send response to specified clients
+	"""Send response to specified clients"""
 	clientlist = [k for k, v 
 			in client.factory.named_clients.items() 
 			if v.gamekey == None]
@@ -43,7 +43,7 @@ def sendToLobby(client, resp):
 	logMsg('to: '+str(clientlist)+' - '+str(resp))
 
 def sendToGame(client, gamename, resp):
-	# Send response to specified clients
+	"""Send response to specified clients"""
 	clientlist = client.factory.games[gamename]['players'].keys()
 	resp['status'] = 'In game'
 	resp['gamedata'] = client.factory.games[gamename]
@@ -53,11 +53,20 @@ def sendToGame(client, gamename, resp):
 	logMsg('to: '+str(clientlist)+' - '+str(resp))
 
 def sendResp(client, resp):
-	# Send response to client
+	"""Send response to client"""
 	addStatusInfo(client, resp)
 	client.sendMessage(client.factory.json_encoder.encode(resp))
 	# Log
 	logMsg('to: '+str(client.name)+' - '+str(resp))
+
+def createUser(client, cmd):
+	"""Create a new user and save new player data"""
+	if len(cmd) < 4:
+		sendResp(client, {'err':'Both username and password are required'})
+	elif servercommands.createUser(client, cmd[2], cmd[3]):
+		sendResp(client, {'message':'User successfully created'})
+	else:
+		sendResp(client, {'err':'Failed to create user'})
 
 def login(client, username, password, sendMsg=True):
 	"""Attempt to log client in. 
@@ -81,11 +90,14 @@ def login(client, username, password, sendMsg=True):
 		if sendMsg:
 			sendResp(client, {'err':'That username is not valid, try again'})
 	else:
-		servercommands.login(client, username, password)
-		# Log
-		logMsg('Login successful: "'+username+'" logged in')
-		if sendMsg:
-			sendResp(client, {'message':'Logged in as '+username})
+		if servercommands.login(client, username, password):
+			# Log
+			logMsg('Login successful: "'+username+'" logged in')
+			if sendMsg:
+				sendResp(client, {'message':'Logged in as '+username})
+		else:
+			if sendMsg:
+				sendResp(client, {'err':'Invalid username or password'})	
 
 def createGame(client, gamename, sendMsg=True):
 	"""Attempt to create a game.

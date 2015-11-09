@@ -1,6 +1,10 @@
 from os import path
 
-defaultProps = {'server_address':'localhost','server_port':'1234','client_limit':'10', 'game_limit':'5', 'max_player_limit':'10'}
+defaultProps = {'server_address':'localhost',
+				'server_port':'1234',
+				'client_limit':'10',
+				'game_limit':'5',
+				'max_player_limit':'10'}
 
 def writeProperties(filepath, data):
 	"""Export server properties (data) to specified file (filepath)."""
@@ -29,20 +33,26 @@ def readProperties(filepath):
 
 	return data
 
-def getPlayer(name):
+def getPlayers(filepath, decoder):
+	"""Get all players in storage"""
+	if path.exists(filepath):
+		players = decoder.decode(open(filepath, 'r').read())
+	else:
+		players = {}
+	return players
+
+def getPlayer(filepath, name, decoder):
 	"""Get user's player data"""
-	player = {'name':name,'stats':{},'vars':{},'exp':0}
+	players = getPlayers(filepath, decoder)
 
-	player['stats']['health'] = 10
-	player['vars']['health'] = 10
+	if name in players.keys():
+		return players[name]
+	else:
+		return False
 
-	player['stats']['attack'] = 1
-	
-	player['stats']['defense'] = 1
-	player['vars']['defense'] = 0
-
-	return player
-
-def storePlayerData(name, data):
+def storePlayerData(filepath, name, data, encoder, decoder):
 	"""Store user's player data"""
-	pass
+	players = getPlayers(filepath, decoder)
+	players[name] = data
+	open(filepath, 'w').write(encoder.encode(players))
+
