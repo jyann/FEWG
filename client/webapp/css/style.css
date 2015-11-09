@@ -32,6 +32,8 @@ body{
 }
 div.scroll{
 	overflow: scroll;
+}
+#logdiv{
 	height: 55vh;
 }
 .float-right{
