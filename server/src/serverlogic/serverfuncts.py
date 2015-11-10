@@ -5,8 +5,9 @@ import servercommands
 # Globals
 invalidNames = ['NONE']
 
-logging.basicConfig(level=logging.DEBUG, 
-		filename='server.log', 
+def configLog(filepath):
+	logging.basicConfig(level=logging.DEBUG, 
+		filename=filepath, 
 		format='%(asctime)s | %(message)s')
 
 def logMsg(msg):
@@ -59,36 +60,56 @@ def sendResp(client, resp):
 	# Log
 	logMsg('to: '+str(client.name)+' - '+str(resp))
 
-def createUser(client, cmd):
+def sendError(client, error):
+	"""Send client an error"""
+	logMsg('Client error: '+error)
+	sendResp(client, {'err':error})
+
+# Command functions:
+
+def createUser(client, cmd, sendMsg=True):
 	"""Create a new user and save new player data"""
 	if len(cmd) < 4:
-		sendResp(client, {'err':'Both username and password are required'})
+		if sendMsg:
+			sendError(client, 'Both username and password are required')
+	elif len(cmd) > 4 or cmd[2] in invalidNames:
+		if sendMsg:
+			sendError(client, 'Invalid username or password')
 	elif servercommands.createUser(client, cmd[2], cmd[3]):
-		sendResp(client, {'message':'User successfully created'})
+		if sendMsg:
+			sendResp(client, {'message':'User successfully created'})
 	else:
-		sendResp(client, {'err':'Failed to create user'})
+		if sendMsg:
+			sendError(client, 'Failed to create user')
 
-def login(client, username, password, sendMsg=True):
+def login(client, cmd, sendMsg=True):
 	"""Attempt to log client in. 
 	Response will contain error response if failed.
 	Response will contain lobby data (games) if successful.
 	Status changes to 'inlobby' on success."""
+	if len(cmd) < 3:
+		if sendMsg:
+			sendError(client, 'Both username and password required')
+		return
+	elif len(cmd) > 3:
+		if sendMsg:
+			sendError(client, 'Invalid username or password')
+		return
+	else:
+		username, password = cmd[1], cmd[2]
+
 	if client.status != 'Logging in':
-		logMsg('Login failed: status != "Logging in"')
 		if sendMsg:
-			sendResp(client, {'err':'You are already logged in'})
+			sendError(client, 'You are already logged in')
 	elif client.name in client.factory.named_clients.keys():
-		logMsg('Login failed: client already logged in')
 		if sendMsg:
-			sendResp(client, {'err':'You are already logged in'})
+			sendError(client, 'You are already logged in')
 	elif username in client.factory.named_clients.keys():
-		logMsg('Login failed: username conflict')
 		if sendMsg:
-			sendResp(client, {'err':'That username is already in use'})
+			sendError(client, 'That username is already in use')
 	elif username in invalidNames:
-		logMsg('Login failed: name not valid')
 		if sendMsg:
-			sendResp(client, {'err':'That username is not valid, try again'})
+			sendError(client, 'That username is not valid, try again')
 	else:
 		if servercommands.login(client, username, password):
 			# Log
@@ -97,30 +118,35 @@ def login(client, username, password, sendMsg=True):
 				sendResp(client, {'message':'Logged in as '+username})
 		else:
 			if sendMsg:
-				sendResp(client, {'err':'Invalid username or password'})	
+				sendError(client, 'Invalid username or password')
 
-def createGame(client, gamename, sendMsg=True):
+def createGame(client, cmd, sendMsg=True):
 	"""Attempt to create a game.
 	Response will contain an error message (err) if failed.
 	Status does not change on success."""
+	error = None
+
+	if len(cmd) != 3:
+		if sendMsg:
+			sendError(client, 'No game name provided')
+		return
+	else:
+		gamename = cmd[2]
+
 	if client.name == None:
-		logMsg('Create game failed: user not logged in')
 		if sendMsg:
-			sendResp(client, {'err':'You must be logged in to create a game'})
+			sendError(client, 'You must be logged in to create a game')
 	elif client.status != 'In lobby':
-		logMsg('Create game failed: user not in lobby')
 		if sendMsg:
-			sendResp(client, {'err':'Must be in lobby to create a game'})
+			sendError(client, 'Must be in lobby to create a game')
 	elif gamename in client.factory.games.keys():
-		logMsg('Create game failed: game name conflict')
 		if sendMsg:
-			sendResp(client, {'err':'That game already exists'})
+			sendError(client, 'That game already exists')
 	elif (len(client.factory.games) 
 			== int(client.factory.properties['game_limit'])):
-		logMsg('Create game failed: game limit reached')
 		if sendMsg:
-			sendResp(client, {'err':"""Game limit reached, 
-							try again later or join another game"""})
+			sendError(client, """Game limit reached, 
+					try again later or join another game""")
 	else:
 		servercommands.createGame(client, gamename, {})
 		# Log
@@ -128,29 +154,30 @@ def createGame(client, gamename, sendMsg=True):
 		if sendMsg:
 			sendToLobby(client, {'message':'Game '+gamename+' created'})
 
-def joinGame(client, gamename, sendMsg=True):
+def joinGame(client, cmd, sendMsg=True):
 	"""Attempt to add the client to the specified game.
 	Response will contain error message (err) if failed.
 	Response will contain game data (gamedata) if successful.
 	Status changes to 'ingame' on success."""
+	if len(cmd) != 3:
+		sendError(client, 'Invalid game name')
+		return
+	else:
+		gamename = cmd[2]
+
 	if client.name == None:
-		logMsg('Join game failed: client not logged in')
 		if sendMsg:
-			sendResp(client, {'err':'You must be logged in to join a game'})
+			sendError(client, 'You must be logged in to join a game')
 	elif client.gamekey != None:
-		logMsg('Join game failed: client already in game')
 		if sendMsg:
-			sendResp(client, {'err':'You are already in a game'})
+			sendError(client, 'You are already in a game')
 	elif gamename not in client.factory.games.keys():
-		logMsg('Join game failed: no such game')
 		if sendMsg:
-			sendResp(client, {'err':"""There is currently 
-								no game with that name"""})
+			sendError(client, 'There is currently no game with that name')
 	elif (len(client.factory.games[gamename]['players'])
 			== int(client.factory.games[gamename]['playerlimit'])):
-		logMsg('Join game failed: game full')
 		if sendMsg:
-			sendResp(client, {'err':'That game is full'})
+			sendError(client, 'That game is full')
 	else:
 		servercommands.joinGame(client, gamename)
 		# Log
@@ -167,9 +194,8 @@ def quitGame(client, sendMsg=True):
 	Response will contain lobby data (games) if successful.
 	Status changes to 'inlobby' on success."""
 	if client.gamekey == None:
-		logMsg('Quit game failed: client not in game')
 		if sendMsg:
-			sendResp(client, {'err':'You are not in a game yet'})
+			sendError(client, 'You are not in a game yet')
 	else:
 		# Capture game name
 		gamename = client.gamekey
@@ -183,25 +209,26 @@ def quitGame(client, sendMsg=True):
 				{'message':client.name+' left the game'})
 			sendToLobby(client, {})
 
-def levelup(client, statname, sendMsg=True):
+def levelup(client, cmd, sendMsg=True):
 	"""Attempt to level up player.
 	Response will contain error message (err) if failed.
 	Response will contain lobby data (games) if successful.
 	Status changes to 'inlobby' on success."""
+	if len(cmd) != 2:
+		sendError(client, 'Invalid stat name')
+		return
+	else:
+		statname = cmd[1]
+
 	if client.playerdata == None:
-		logMsg('Level up failed: client not logged in')
 		if sendMsg:
-			sendResp(client, {'err':'You must be logged in to level up'})
+			sendError(client, 'You must be logged in to level up')
 	elif statname not in client.playerdata['stats'].keys():
-		logMsg('Level up failed: no such stat')
 		if sendMsg:
-			sendResp(client, {'err':"""Couldn't find that stat, 
-								try another again"""})
+			sendError(client, "Couldn't find that stat, try again")
 	elif client.playerdata['exp'] <= 0:
-		logMsg('Level up failed: not enough exp')
 		if sendMsg:
-			sendResp(client, {'err':"""You don't have enough XP, 
-								win some games first"""})
+			sendError(client, "You don't have enough XP, win some games first")
 	else:
 		servercommands.levelUp(client, statname)
 		# Log
@@ -219,9 +246,8 @@ def logout(client, sendMsg=True):
 	quitGame(client, False)
 
 	if client.name == None:
-		logMsg('Logout failed: client not logged in')
 		if sendMsg:
-			sendResp(client, {'err':"You haven't logged in yet"})
+			sendError(client, "You haven't logged in yet")
 	else:
 		# Capture username
 		username = client.name

@@ -1,4 +1,4 @@
-from serverfuncts import sendResp, sendToLobby, sendToGame, quitGame, gamesList
+from serverfuncts import sendResp, sendError, sendToLobby, sendToGame, quitGame, gamesList
 import gamecommands
 
 def endGame(client, gamename):
@@ -13,13 +13,14 @@ def executeGameFunct(client, gameFunct, targetkey):
 	Response will contain lobby data (games) if successful.
 	Status does not change on success."""
 	if client.gamekey == None:
-		sendResp(client, {'err':'You are not in a game'})
-	elif len(client.factory.games[client.gamekey]['players']) != client.factory.games[client.gamekey]['playerlimit']:
-		sendResp(client, {'err':'The game is not ready yet'})
+		sendError(client, 'You are not in a game')
+	elif (len(client.factory.games[client.gamekey]['players']) 
+			!= client.factory.games[client.gamekey]['playerlimit']):
+		sendError(client, 'The game is not ready yet')
 	elif targetkey not in client.factory.games[client.gamekey]['players'].keys():
-		sendResp(client, {'err':"Couldn't find that player in this game"})
+		sendError(client, "Couldn't find that player in this game")
 	elif client.name in client.factory.games[client.gamekey]['graveyard']:
-		sendResp(client, {'err':"You can't do that from the graveyard"})
+		sendError(client, "You can't do that from the graveyard")
 	else:
 		gameFunct(client.factory.games[client.gamekey], client.name, targetkey)
 
@@ -31,12 +32,25 @@ def executeGameFunct(client, gameFunct, targetkey):
 		endGame(client, client.gamekey)
 		sendToLobby(client, {})
 
-def attack(client, targetkey):
+def attack(client, cmd):
 	"""Attempt to attack.
 	Calls executeGameFunct."""
+	if len(cmd) != 2:
+		sendError(client, 'Invalid target')
+		return
+	else:
+		targetkey = cmd[1]
+
 	executeGameFunct(client, gamecommands.attack, targetkey)
 
-def defend(client, targetkey):
+def defend(client, cmd):
 	"""Attempt to defend.
 	Calls executeGameFunct."""
+	if len(cmd) != 2:
+		sendError(client, 'Invalid target')
+		return
+	else:
+		targetkey = cmd[1]
+
 	executeGameFunct(client, gamecommands.defend, targetkey)
+

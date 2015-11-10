@@ -18,9 +18,7 @@ class FEWGProtocol(Protocol):
 		print 'connection made'
 		if self.factory.isFull():
 			# Send server full error message
-			resp = {}
-			resp['err'] = 'The server is full.'
-			self.sendMessage(self.factory.json_encoder.encode(resp))
+			serverfuncts.sendResp(self, {'err':'The server is full'})
 			# Close connection
 			self.abortConnection()
 		else:
@@ -32,39 +30,40 @@ class FEWGProtocol(Protocol):
 			self.gamekey = None
 			self.playerdata = None
 
-			resp = {}
-			serverfuncts.addStatusInfo(self, resp)
-			self.sendMessage(self.factory.json_encoder.encode(resp))
+			serverfuncts.sendResp(self, {})
 
 	def onMessage(self, raw_data):
 		"""Overloaded message function."""
 		serverfuncts.logMsg('from: '+str(self.name) + " - " + raw_data)
 		# Parse message data
 		data = raw_data.split()
-		try:
+		if len(data) > 0:
 			if data[0] == 'disconnect':
 				serverfuncts.closeConn(self)
-			elif data[0] == 'create' and data[1] == 'user':
-				serverfuncts.createUser(self, data)
+			elif data[0] == 'create':
+				if len(data) > 1 and data[1] == 'user':
+					serverfuncts.createUser(self, data)
+				elif len(data) > 1 and data[1] == 'game':
+					serverfuncts.createGame(self, data)
 			elif data[0] == 'login':
-				serverfuncts.login(self, data[1], data[2])
+				serverfuncts.login(self, data)
 			elif data[0] == 'logout':
 				serverfuncts.logout(self)
-			elif data[0] == 'create' and data[1] == 'game':
-				serverfuncts.createGame(self, data[2])
-			elif data[0] == 'join' and data[1] == 'game':
-				serverfuncts.joinGame(self, data[2])
+			elif data[0] == 'join':
+				if len(data) > 1 and data[1] == 'game':
+					serverfuncts.joinGame(self, data)
 			elif data[0] == 'levelup':
-				serverfuncts.levelup(self, data[1])
-			elif data[0] == 'quit' and data[1] == 'game':
-				serverfuncts.quitGame(self)
+				serverfuncts.levelup(self, data)
+			elif data[0] == 'quit':
+				if len(data) > 1 and data[1] == 'game':
+					serverfuncts.quitGame(self)
 			elif data[0] == 'attack':
-				gamefuncts.attack(self, data[1])
+				gamefuncts.attack(self, data)
 			elif data[0] == 'defend':
-				gamefuncts.defend(self, data[1])
+				gamefuncts.defend(self, data)
 			else:
 				pass
-
+"""
 		except IndexError as e:
 			# Send error message with status-specific data
 			resp = {}
@@ -84,7 +83,7 @@ class FEWGProtocol(Protocol):
 			# Log
 			serverfuncts.logMsg('to: '+str(self.name)+" - "+str(resp))
 			print e
-
+"""
 class FEWGServerFactory(ServerFactory):
 	"""Websocket factory for FEWG server."""
 	def __init__(self, proto, props, prop_path):
@@ -93,7 +92,7 @@ class FEWGServerFactory(ServerFactory):
 		self.protocol = proto
 		# Set properties
 		self.properties = props
-		# Set properties
+		# Set properties path
 		self.prop_path = prop_path
 		# Init server data
 		self.clients = []
@@ -102,6 +101,8 @@ class FEWGServerFactory(ServerFactory):
 		# Init decoders
 		self.json_decoder = JSONDecoder()
 		self.json_encoder = JSONEncoder()
+		# Init configs
+		serverfuncts.configLog(prop_path+'/server.log')
 
 	def isFull(self):
 		"""Determines if the number of clients has reached its limit.
@@ -116,7 +117,8 @@ class FEWGServerFactory(ServerFactory):
 	def sendToClients(self, clientnames, msg):
 		"""Send to all specified logged in clients."""
 		for name in clientnames:
-			self.named_clients[name].sendMessage(msg)
+			if name in self.named_clients.keys():
+				self.named_clients[name].sendMessage(msg)
 
 from twisted.internet import reactor
 
